@@ -395,7 +395,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `exercise_football`.`support_staff_teams` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `support_staff_id` BIGINT NOT NULL,
-  `team_id` INT NOT NULL,
+  `team_id` BIGINT NOT NULL,
   `job_start` DATE NOT NULL,
   `job_end` DATE NULL,
   PRIMARY KEY (`id`),
