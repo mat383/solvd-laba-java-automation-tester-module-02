@@ -56,16 +56,16 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public Optional<Team> findById(long id) {
-        return Optional.empty();
+        return this.teamRepository.findById(id);
     }
 
     @Override
     public List<Team> findAll() {
-        return null;
+        return this.teamRepository.findAll();
     }
 
     @Override
     public List<Team> findByClubId(long id) {
-        return null;
+        return this.teamRepository.findByClubId(id);
     }
 }

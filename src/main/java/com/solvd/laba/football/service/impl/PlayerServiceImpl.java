@@ -54,7 +54,7 @@ public class PlayerServiceImpl implements PlayerService {
 
 
     @Override
-    public List<Player> findByTeamId(long teamId) {
-        return this.playerRepository.findByTeamId(teamId);
+    public List<Player> findByTeamId(long id) {
+        return this.playerRepository.findByTeamId(id);
     }
 }

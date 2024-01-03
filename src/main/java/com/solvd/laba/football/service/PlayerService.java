@@ -16,6 +16,6 @@ public interface PlayerService {
 
     List<Player> findAll();
 
-    List<Player> findByTeamId(long teamId);
+    List<Player> findByTeamId(long id);
 
 }
