@@ -10,10 +10,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ConnectionPoolJDBC {
+public class MySQLConnectionPool {
 
-    private static final Logger LOGGER = LogManager.getLogger(ConnectionPoolJDBC.class.getName());
-    private static volatile ConnectionPoolJDBC instance;
+    private static final Logger LOGGER = LogManager.getLogger(MySQLConnectionPool.class.getName());
+    private static volatile MySQLConnectionPool instance;
     private static final int POOL_SIZE = 5;
     private static final int SLEEP_BETWEEN_CHECKS_MILISECONDS = 200;
 
@@ -21,18 +21,18 @@ public class ConnectionPoolJDBC {
     private volatile List<Connection> usedConnections;
 
 
-    private ConnectionPoolJDBC(int poolSize) {
+    private MySQLConnectionPool(int poolSize) {
         // create pool and fill it with uninitialized objects
         this.connections = new CopyOnWriteArrayList<>(Collections.nCopies(poolSize, null));
         this.usedConnections = new CopyOnWriteArrayList<>();
     }
 
-    public static synchronized ConnectionPoolJDBC getInstance() {
-        if (ConnectionPoolJDBC.instance == null) {
+    public static synchronized MySQLConnectionPool getInstance() {
+        if (MySQLConnectionPool.instance == null) {
             LOGGER.info("Creating instance of ConnectionPool");
-            ConnectionPoolJDBC.instance = new ConnectionPoolJDBC(POOL_SIZE);
+            MySQLConnectionPool.instance = new MySQLConnectionPool(POOL_SIZE);
         }
-        return ConnectionPoolJDBC.instance;
+        return MySQLConnectionPool.instance;
     }
 
     public synchronized Connection getConnection() throws SQLException {
@@ -62,13 +62,16 @@ public class ConnectionPoolJDBC {
                 if (c != null && this.usedConnections.contains(c)) {
                     continue;
                 }
-                connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/exercise_football", "root", "example");
+                connection = DriverManager.getConnection(
+                        "jdbc:mysql://localhost:3306/exercise_football",
+                        "root", "example");
                 this.connections.set(i, connection);
                 break;
             }
         }
 
         this.usedConnections.add(connection);
+        setConnectionDefaults(connection);
         return connection;
     }
 
@@ -78,5 +81,10 @@ public class ConnectionPoolJDBC {
 
     protected synchronized boolean connectionsAvailable() {
         return this.usedConnections.size() < this.connections.size();
+    }
+
+    protected void setConnectionDefaults(Connection connection) throws SQLException {
+        connection.setReadOnly(false);
+        connection.setAutoCommit(true);
     }
 }

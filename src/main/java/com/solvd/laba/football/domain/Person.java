@@ -3,7 +3,8 @@ package com.solvd.laba.football.domain;
 import java.time.LocalDate;
 
 public class Person {
-    private final long id;
+    // TODO: figure out how to make id final
+    private Long id;
     private String firstName;
     private String lastName;
     private LocalDate birthDate;
@@ -15,12 +16,16 @@ public class Person {
         this.birthDate = birthDate;
     }
 
-    public long getId() {
-        return id;
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getFirstName() {
-        return firstName;
+        return this.firstName;
     }
 
     public void setFirstName(String firstName) {
@@ -28,7 +33,7 @@ public class Person {
     }
 
     public String getLastName() {
-        return lastName;
+        return this.lastName;
     }
 
     public void setLastName(String lastName) {
@@ -36,7 +41,7 @@ public class Person {
     }
 
     public LocalDate getBirthDate() {
-        return birthDate;
+        return this.birthDate;
     }
 
     public void setBirthDate(LocalDate birthDate) {

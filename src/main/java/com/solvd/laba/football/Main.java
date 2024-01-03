@@ -2,17 +2,23 @@ package com.solvd.laba.football;
 
 
 import com.solvd.laba.football.domain.Person;
-import com.solvd.laba.football.persistence.PersonRepository;
-import com.solvd.laba.football.persistence.impl.PersonRepositoryJDBCImpl;
+import com.solvd.laba.football.persistence.RepositoryProvider;
+import com.solvd.laba.football.persistence.impl.MySQLRepositoryProvider;
+import com.solvd.laba.football.service.PersonService;
+import com.solvd.laba.football.service.impl.PersonServiceImpl;
 
-import java.time.LocalDate;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        RepositoryProvider repositoryProvider = new MySQLRepositoryProvider();
 
-        PersonRepository personRepository = new PersonRepositoryJDBCImpl();
-        Person person = new Person(9, "Person9", "Last9", LocalDate.of(1998, 9, 23));
-        personRepository.create(person);
+        PersonService personService = new PersonServiceImpl(repositoryProvider.getPersonRepository());
+
+        List<Person> people = personService.findAll();
+        for (Person personTest : people) {
+            System.out.println(personTest.getFirstName() + " " + personTest.getLastName());
+        }
 
         System.out.println("Hello world.");
     }

@@ -21,6 +21,7 @@
         <mysqlConnectorVersion>8.2.0</mysqlConnectorVersion>
         <apacheCommonsLangVersion>3.14.0</apacheCommonsLangVersion>
         <apacheCommonsIOVersion>2.15.1</apacheCommonsIOVersion>
+        <lombokVersion>1.18.30</lombokVersion>
         <mavenCompilerVersion>3.11.0</mavenCompilerVersion>
     </properties>
 
@@ -46,6 +47,13 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>${mysqlConnectorVersion}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombokVersion}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
