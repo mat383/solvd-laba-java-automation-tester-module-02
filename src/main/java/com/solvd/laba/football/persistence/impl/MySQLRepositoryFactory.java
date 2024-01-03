@@ -2,35 +2,23 @@ package com.solvd.laba.football.persistence.impl;
 
 import com.solvd.laba.football.persistence.PersonRepository;
 import com.solvd.laba.football.persistence.PlayerRepository;
-import com.solvd.laba.football.persistence.RepositoryProvider;
+import com.solvd.laba.football.persistence.RepositoryFactory;
 import com.solvd.laba.football.persistence.TeamRepository;
 
-public class MySQLRepositoryProvider implements RepositoryProvider {
-    private MySQLPersonRepositoryImpl personRepository;
-    private MySQLPlayerRepositoryImpl playerRepository;
-    private MySQLTeamRepositoryImpl teamRepository;
+public class MySQLRepositoryFactory implements RepositoryFactory {
 
     @Override
-    public PersonRepository getPersonRepository() {
-        if (this.personRepository == null) {
-            this.personRepository = new MySQLPersonRepositoryImpl();
-        }
-        return this.personRepository;
+    public PersonRepository createPersonRepository() {
+        return new MySQLPersonRepositoryImpl();
     }
 
     @Override
-    public PlayerRepository getPlayerRepository() {
-        if (this.playerRepository == null) {
-            this.playerRepository = new MySQLPlayerRepositoryImpl();
-        }
-        return this.playerRepository;
+    public PlayerRepository createPlayerRepository() {
+        return new MySQLPlayerRepositoryImpl();
     }
 
     @Override
-    public TeamRepository getTeamRepository() {
-        if (this.teamRepository == null) {
-            this.teamRepository = new MySQLTeamRepositoryImpl();
-        }
-        return this.teamRepository;
+    public TeamRepository createTeamRepository() {
+        return new MySQLTeamRepositoryImpl();
     }
 }

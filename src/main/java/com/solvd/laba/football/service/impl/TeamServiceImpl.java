@@ -47,6 +47,11 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public void delete(Team team) {
+        // TODO add support for failure
+        for (Player player : team.getPlayers()) {
+            playerService.delete(player);
+        }
+        this.teamRepository.delete(team);
     }
 
     @Override
