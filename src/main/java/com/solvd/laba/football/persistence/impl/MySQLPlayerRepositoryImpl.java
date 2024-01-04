@@ -3,6 +3,8 @@ package com.solvd.laba.football.persistence.impl;
 import com.solvd.laba.football.domain.Person;
 import com.solvd.laba.football.domain.Player;
 import com.solvd.laba.football.persistence.PlayerRepository;
+import com.solvd.laba.football.persistence.impl.util.MySQLConnectionPool;
+import com.solvd.laba.football.persistence.impl.util.MySQLRepositoryHelper;
 import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,18 +21,22 @@ public class MySQLPlayerRepositoryImpl implements PlayerRepository {
 
     @Override
     public void create(@NonNull Player player, long teamId) {
+        if (player.hasSetId()) {
+            throw new IllegalArgumentException("Person cannot have id set");
+        }
         try {
-            int affectedRows = MySQLRepositoryHelper.executeUpdate(
-                    "INSERT INTO players(id, person_id, preffered_position_id, team_id) VALUES (?, ?, ?, ?);",
+            MySQLRepositoryHelper.UpdateResult result = MySQLRepositoryHelper.executeUpdateGetKeys(
+                    "INSERT INTO players(person_id, preffered_position_id, team_id) VALUES (?, ?, ?);",
                     preparedStatement -> {
-                        preparedStatement.setLong(1, player.getId());
-                        preparedStatement.setLong(2, player.getPerson().getId());
+                        preparedStatement.setLong(1, player.getPerson().getId());
                         // FIXME FIX THIS -------- TEMPORARY CODE, NEEDS TO BE REPLACED WITH ACTUAL POSITION
-                        preparedStatement.setLong(3, 1);
-                        preparedStatement.setLong(4, teamId);
+                        preparedStatement.setLong(2, 1);
+                        preparedStatement.setLong(3, teamId);
                     },
                     CONNECTION_POOL);
-            assert affectedRows == 1;
+            assert result.affectedRows() == 1;
+            assert result.generatedKeys().size() == 1;
+            player.setId(result.generatedKeys().get(0));
         } catch (SQLException e) {
             throw new RuntimeException("Unable create player", e);
         }
@@ -38,6 +44,9 @@ public class MySQLPlayerRepositoryImpl implements PlayerRepository {
 
     @Override
     public void update(@NonNull Player player, long teamId) {
+        if (!player.hasSetId()) {
+            throw new IllegalArgumentException("Unable to update player that doesn't have id.");
+        }
         try {
             int affectedRows = MySQLRepositoryHelper.executeUpdate(
                     "UPDATE players SET person_id=?, preffered_position_id=?, team_id=? WHERE id=?;",
@@ -57,6 +66,9 @@ public class MySQLPlayerRepositoryImpl implements PlayerRepository {
 
     @Override
     public void delete(@NonNull Player player) {
+        if (!player.hasSetId()) {
+            throw new IllegalArgumentException("Unable to delete player that doesn't have id.");
+        }
         try {
             int affectedRows = MySQLRepositoryHelper.executeUpdate(
                     "DELETE FROM players WHERE id=?",

@@ -1,50 +1,41 @@
 package com.solvd.laba.football.domain;
 
+import com.solvd.laba.football.domain.interfaces.Identifiable;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+
 import java.time.LocalDate;
 
-public class Person {
+@Getter
+public class Person implements Identifiable {
     // TODO: figure out how to make id final
     private Long id;
+    @Setter
     private String firstName;
+    @Setter
     private String lastName;
+    @Setter
+    @NonNull
     private LocalDate birthDate;
 
-    public Person(long id, String firstName, String lastName, LocalDate birthDate) {
+    public Person(Long id, String firstName, String lastName, LocalDate birthDate) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthDate = birthDate;
     }
 
-    public Long getId() {
-        return this.id;
+    public Person(String firstName, String lastName, LocalDate birthDate) {
+        this(null, firstName, lastName, birthDate);
     }
 
-    public void setId(Long id) {
+
+    @Override
+    public void setId(long id) {
+        if (this.id != null) {
+            throw new RuntimeException("Person's id can only be set once.");
+        }
         this.id = id;
-    }
-
-    public String getFirstName() {
-        return this.firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return this.lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public LocalDate getBirthDate() {
-        return this.birthDate;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
     }
 }

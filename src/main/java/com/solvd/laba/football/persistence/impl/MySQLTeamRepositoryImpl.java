@@ -2,6 +2,8 @@ package com.solvd.laba.football.persistence.impl;
 
 import com.solvd.laba.football.domain.Team;
 import com.solvd.laba.football.persistence.TeamRepository;
+import com.solvd.laba.football.persistence.impl.util.MySQLConnectionPool;
+import com.solvd.laba.football.persistence.impl.util.MySQLRepositoryHelper;
 import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,28 +20,35 @@ public class MySQLTeamRepositoryImpl implements TeamRepository {
     private static final MySQLConnectionPool CONNECTION_POOL = MySQLConnectionPool.getInstance();
 
     @Override
-    public void create(@NonNull Team team, long clubId, long leagueId, int leaguePosition) {
+    public void create(@NonNull Team team, long clubId, Long leagueId, Integer leaguePosition) {
+        if (team.hasSetId()) {
+            throw new IllegalArgumentException("Team cannot have id set");
+        }
         try {
-            int affectedRows = MySQLRepositoryHelper.executeUpdate(
-                    "INSERT INTO teams(id, name, club_id, creation_date, closure_date, league_id, league_position) VALUES (?, ?, ?, ?, ?, ?, ?);",
+            MySQLRepositoryHelper.UpdateResult result = MySQLRepositoryHelper.executeUpdateGetKeys(
+                    "INSERT INTO teams(name, club_id, creation_date, closure_date, league_id, league_position) VALUES (?, ?, ?, ?, ?, ?);",
                     preparedStatement -> {
-                        preparedStatement.setLong(1, team.getId());
-                        preparedStatement.setString(2, team.getName());
-                        preparedStatement.setLong(3, clubId);
-                        preparedStatement.setDate(4, Date.valueOf(team.getCreationDate()));
-                        preparedStatement.setDate(5, Date.valueOf(team.getClosureDate()));
-                        preparedStatement.setLong(6, leagueId);
-                        preparedStatement.setInt(7, leaguePosition);
+                        preparedStatement.setString(1, team.getName());
+                        preparedStatement.setLong(2, clubId);
+                        preparedStatement.setDate(3, Date.valueOf(team.getCreationDate()));
+                        preparedStatement.setDate(4, Date.valueOf(team.getClosureDate()));
+                        preparedStatement.setLong(5, leagueId);
+                        preparedStatement.setInt(6, leaguePosition);
                     },
                     CONNECTION_POOL);
-            assert affectedRows == 1;
+            assert result.affectedRows() == 1;
+            assert result.generatedKeys().size() == 1;
+            team.setId(result.generatedKeys().get(0));
         } catch (SQLException e) {
             throw new RuntimeException("Unable to create team", e);
         }
     }
 
     @Override
-    public void update(@NonNull Team team, long clubId, long leagueId, int leaguePosition) {
+    public void update(@NonNull Team team, long clubId, Long leagueId, Integer leaguePosition) {
+        if (!team.hasSetId()) {
+            throw new IllegalArgumentException("Unable to update team that doesn't have id.");
+        }
         try {
             int affectedRows = MySQLRepositoryHelper.executeUpdate(
                     "UPDATE teams SET name=?, club_id=?, creation_date=?, closure_date=?, league_id=?, league_position=? WHERE id=?;",
@@ -61,6 +70,9 @@ public class MySQLTeamRepositoryImpl implements TeamRepository {
 
     @Override
     public void delete(@NonNull Team team) {
+        if (!team.hasSetId()) {
+            throw new IllegalArgumentException("Unable to delete team that doesn't have id.");
+        }
         try {
             int affectedRows = MySQLRepositoryHelper.executeUpdate(
                     "DELETE FROM teams WHERE id=?;",

@@ -6,4 +6,8 @@ public interface RepositoryFactory {
     PlayerRepository createPlayerRepository();
 
     TeamRepository createTeamRepository();
+
+    PositionRepository createPositionRepository();
+
+    ShootOutcomeRepository createShootOutcomeRepository();
 }

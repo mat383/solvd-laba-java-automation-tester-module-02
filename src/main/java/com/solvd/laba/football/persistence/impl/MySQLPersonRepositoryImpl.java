@@ -2,6 +2,8 @@ package com.solvd.laba.football.persistence.impl;
 
 import com.solvd.laba.football.domain.Person;
 import com.solvd.laba.football.persistence.PersonRepository;
+import com.solvd.laba.football.persistence.impl.util.MySQLConnectionPool;
+import com.solvd.laba.football.persistence.impl.util.MySQLRepositoryHelper;
 import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,17 +26,21 @@ public class MySQLPersonRepositoryImpl implements PersonRepository {
      */
     @Override
     public void create(@NonNull Person person) {
+        if (person.hasSetId()) {
+            throw new IllegalArgumentException("Person cannot have id set");
+        }
         try {
-            int affectedRows = MySQLRepositoryHelper.executeUpdate(
-                    "INSERT INTO people(id, first_name, last_name, birth_date) VALUES (?, ?, ?, ?);",
+            MySQLRepositoryHelper.UpdateResult result = MySQLRepositoryHelper.executeUpdateGetKeys(
+                    "INSERT INTO people(first_name, last_name, birth_date) VALUES (?, ?, ?);",
                     preparedStatement -> {
-                        preparedStatement.setLong(1, person.getId());
-                        preparedStatement.setString(2, person.getFirstName());
-                        preparedStatement.setString(3, person.getLastName());
-                        preparedStatement.setDate(4, Date.valueOf(person.getBirthDate()));
+                        preparedStatement.setString(1, person.getFirstName());
+                        preparedStatement.setString(2, person.getLastName());
+                        preparedStatement.setDate(3, Date.valueOf(person.getBirthDate()));
                     },
                     CONNECTION_POOL);
-            assert affectedRows == 1;
+            assert result.affectedRows() == 1;
+            assert result.generatedKeys().size() == 1;
+            person.setId(result.generatedKeys().get(0));
         } catch (SQLException e) {
             throw new RuntimeException("Unable create person", e);
         }
@@ -42,6 +48,9 @@ public class MySQLPersonRepositoryImpl implements PersonRepository {
 
     @Override
     public void update(@NonNull Person person) {
+        if (!person.hasSetId()) {
+            throw new IllegalArgumentException("Unable to update person that doesn't have id.");
+        }
         try {
             int affectedRows = MySQLRepositoryHelper.executeUpdate(
                     "UPDATE people SET first_name=?, last_name=?, birth_date=? WHERE id=?;",
@@ -61,6 +70,9 @@ public class MySQLPersonRepositoryImpl implements PersonRepository {
     // TODO: return bool to indicate if deletion occured?
     @Override
     public void delete(@NonNull Person person) {
+        if (!person.hasSetId()) {
+            throw new IllegalArgumentException("Unable to delete person that doesn't have id.");
+        }
         try {
             int affectedRows = MySQLRepositoryHelper.executeUpdate(
                     "DELETE FROM people WHERE id=?;",
@@ -106,6 +118,7 @@ public class MySQLPersonRepositoryImpl implements PersonRepository {
             throw new RuntimeException("Unable to find person", e);
         }
     }
+
 
     /**
      * generates person from resultSet uses current position

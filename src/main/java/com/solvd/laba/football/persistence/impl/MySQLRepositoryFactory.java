@@ -1,9 +1,6 @@
 package com.solvd.laba.football.persistence.impl;
 
-import com.solvd.laba.football.persistence.PersonRepository;
-import com.solvd.laba.football.persistence.PlayerRepository;
-import com.solvd.laba.football.persistence.RepositoryFactory;
-import com.solvd.laba.football.persistence.TeamRepository;
+import com.solvd.laba.football.persistence.*;
 
 public class MySQLRepositoryFactory implements RepositoryFactory {
 
@@ -20,5 +17,15 @@ public class MySQLRepositoryFactory implements RepositoryFactory {
     @Override
     public TeamRepository createTeamRepository() {
         return new MySQLTeamRepositoryImpl();
+    }
+
+    @Override
+    public PositionRepository createPositionRepository() {
+        return new MySQLPositionRepositoryImpl();
+    }
+
+    @Override
+    public ShootOutcomeRepository createShootOutcomeRepository() {
+        return new MySQLShootOutcomeRepositoryImpl();
     }
 }

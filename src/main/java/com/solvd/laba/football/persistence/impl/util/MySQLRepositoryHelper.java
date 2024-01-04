@@ -1,4 +1,4 @@
-package com.solvd.laba.football.persistence.impl;
+package com.solvd.laba.football.persistence.impl.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,16 +48,15 @@ public class MySQLRepositoryHelper {
      * @param query             SQL query that is passes to PreparedStatement
      * @param statementPreparer lambda that feeds data to PreparedStatement
      * @param connectionPool
-     * @param listToPutKeys     list that this method will fill with generated keys
      * @return
      * @throws SQLException
      */
-    public static int executeUpdateGetKeys(String query,
-                                           StatementPreparer statementPreparer,
-                                           MySQLConnectionPool connectionPool,
-                                           List<Long> listToPutKeys) throws SQLException {
+    public static UpdateResult executeUpdateGetKeys(String query,
+                                                    StatementPreparer statementPreparer,
+                                                    MySQLConnectionPool connectionPool) throws SQLException {
         Connection connection = null;
         int affectedRows = 0;
+        List<Long> generatedKeys = new ArrayList<>(1);
         try {
             connection = connectionPool.getConnection();
 
@@ -66,13 +65,13 @@ public class MySQLRepositoryHelper {
                 affectedRows = preparedStatement.executeUpdate();
                 ResultSet keys = preparedStatement.getGeneratedKeys();
                 while (keys.next()) {
-                    listToPutKeys.add(keys.getLong(1));
+                    generatedKeys.add(keys.getLong(1));
                 }
             }
         } finally {
             connectionPool.releaseConnection(connection);
         }
-        return affectedRows;
+        return new UpdateResult(affectedRows, generatedKeys);
     }
 
     public static <T> List<T> executeQuery(String query,
@@ -111,9 +110,10 @@ public class MySQLRepositoryHelper {
      * @return insert query for PreparedStatement
      */
     public static String buildInsertQuery(String tableName, List<String> fieldNames) {
-        String createQuery = "INSERT_INTO `%s`".formatted(tableName) + "("
-                + String.join(", ", fieldNames)
-                + ") VALUES ("
+        String createQuery = "INSERT INTO `%s` ".formatted(tableName)
+                + "(`" + String.join("`, `", fieldNames) + "`) "
+                + "VALUES "
+                + "("
                 + String.join(", ", Collections.nCopies(fieldNames.size(), "?"))
                 + ");";
 
@@ -136,9 +136,9 @@ public class MySQLRepositoryHelper {
     public static String buildUpdateQuery(String tableName, List<String> fieldsToUpdate, List<String> primaryKeyFields) {
         String updateQuery = "UPDATE `%s` ".formatted(tableName)
                 + "SET "
-                + String.join("=?, ", fieldsToUpdate) + "=? "
+                + "`" + String.join("` = ?, `", fieldsToUpdate) + "` = ? "
                 + "WHERE "
-                + String.join("=? AND", primaryKeyFields) + "=? "
+                + "`" + String.join("` = ? AND `", primaryKeyFields) + "` = ? "
                 + ";";
 
         LOGGER.info("Generated update query: \"" + updateQuery + "\"");
@@ -158,7 +158,7 @@ public class MySQLRepositoryHelper {
     public static String buildDeleteQuery(String tableName, List<String> primaryKeyFields) {
         String deleteQuery = "DELETE FROM `%s` ".formatted(tableName)
                 + "WHERE "
-                + String.join("=? AND", primaryKeyFields) + "=? "
+                + "`" + String.join("` = ? AND `", primaryKeyFields) + "` = ? "
                 + ";";
 
         LOGGER.info("Generated delete query: \"" + deleteQuery + "\"");
@@ -182,5 +182,11 @@ public class MySQLRepositoryHelper {
          * @throws SQLException
          */
         T map(ResultSet resultSet) throws SQLException;
+    }
+
+    public record UpdateResult(
+            int affectedRows,
+            List<Long> generatedKeys
+    ) {
     }
 }

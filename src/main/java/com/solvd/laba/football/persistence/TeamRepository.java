@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TeamRepository {
-    void create(Team team, long clubId, long leagueId, int leaguePosition);
+    void create(Team team, long clubId, Long leagueId, Integer leaguePosition);
 
-    void update(Team team, long clubId, long leagueId, int leaguePosition);
+    void update(Team team, long clubId, Long leagueId, Integer leaguePosition);
 
     void delete(Team team);
 

@@ -20,7 +20,10 @@ public class TeamServiceImpl implements TeamService {
 
 
     @Override
-    public void create(Team team, long clubId, long leagueId, int leaguePosition) {
+    public void create(Team team, long clubId, Long leagueId, Integer leaguePosition) {
+        if (leaguePosition != null && leagueId == null) {
+            throw new IllegalArgumentException("If league position is not null, then league id cannot be null");
+        }
         // TODO add support for failure
         this.teamRepository.create(team, clubId, leagueId, leaguePosition);
         for (Player player : team.getPlayers()) {
@@ -33,7 +36,10 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public void update(Team team, long clubId, long leagueId, int leaguePosition) {
+    public void update(Team team, long clubId, Long leagueId, Integer leaguePosition) {
+        if (leaguePosition != null && leagueId == null) {
+            throw new IllegalArgumentException("If league position is not null, then league id cannot be null");
+        }
         // TODO add support for failure
         this.teamRepository.update(team, clubId, leagueId, leaguePosition);
         for (Player player : team.getPlayers()) {
@@ -57,11 +63,13 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public Optional<Team> findById(long id) {
         return this.teamRepository.findById(id);
+        // TODO add players to the team
     }
 
     @Override
     public List<Team> findAll() {
         return this.teamRepository.findAll();
+        // TODO add players to the team
     }
 
     @Override

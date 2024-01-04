@@ -1,5 +1,6 @@
 package com.solvd.laba.football.domain;
 
+import com.solvd.laba.football.domain.interfaces.Identifiable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -8,11 +9,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 @Getter
-public class Team {
-    private final long id;
+public class Team implements Identifiable {
+    private Long id;
     @NonNull
     @Setter
     private String name;
@@ -23,7 +24,7 @@ public class Team {
     private LocalDate closureDate;
 
     @Getter(AccessLevel.NONE)
-    private Set<Player> players;
+    private List<Player> players;
     //private List<SupportStaff> supportStaff;
 
     public Team(long id, String name, LocalDate creationDate, LocalDate closureDate) {
@@ -44,7 +45,19 @@ public class Team {
         this(id, name, creationDate, null);
     }
 
+
+    @Override
+    public void setId(long id) {
+        if (this.id != null) {
+            throw new RuntimeException("Team's id can be set only once.");
+        }
+        this.id = id;
+    }
+
     public void addPlayer(@NonNull Player player) {
+        if (this.players.contains(player)) {
+            throw new IllegalArgumentException("Team already have player " + player);
+        }
         this.players.add(player);
     }
 
@@ -52,8 +65,12 @@ public class Team {
         return this.players.remove(player);
     }
 
-    public Set<Player> getPlayers() {
-        return Collections.unmodifiableSet(this.players);
+    public boolean havePlayer(Player player) {
+        return this.players.contains(player);
+    }
+
+    public List<Player> getPlayers() {
+        return Collections.unmodifiableList(this.players);
     }
 
 }
