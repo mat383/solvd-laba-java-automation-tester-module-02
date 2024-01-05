@@ -32,7 +32,9 @@ public class Main {
         }
 
         ShootOutcome shootOutcomeTest = new ShootOutcome(8L, null);
-        new MySQLShootOutcomeRepositoryImpl().delete(shootOutcomeTest);
-        System.out.println(shootOutcomeTest.getId() + " - " + shootOutcomeTest.getName());
+        List<ShootOutcome> shootOutcomes = new MySQLShootOutcomeRepositoryImpl().findAll();
+        for (ShootOutcome so : shootOutcomes) {
+            System.out.println(so.getId() + " - " + so.getName());
+        }
     }
 }

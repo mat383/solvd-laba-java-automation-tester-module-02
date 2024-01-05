@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class MySQLRepositoryHelper {
@@ -99,72 +98,6 @@ public class MySQLRepositoryHelper {
         return results;
     }
 
-
-    /**
-     * create sql query for inserting object into database
-     * this query is meant to be used with prepared statement,
-     * so it doesn't contain any values
-     *
-     * @param tableName
-     * @param fieldNames fields to be updated
-     * @return insert query for PreparedStatement
-     */
-    public static String buildInsertQuery(String tableName, List<String> fieldNames) {
-        String createQuery = "INSERT INTO `%s` ".formatted(tableName)
-                + "(`" + String.join("`, `", fieldNames) + "`) "
-                + "VALUES "
-                + "("
-                + String.join(", ", Collections.nCopies(fieldNames.size(), "?"))
-                + ");";
-
-        LOGGER.info("Generated create query: \"" + createQuery + "\"");
-
-        return createQuery;
-    }
-
-
-    /**
-     * create sql query for updating object in database
-     * this query is meant to be used with prepared statement,
-     * so it doesn't contain any values
-     *
-     * @param tableName        name of table to be altered
-     * @param fieldsToUpdate   fields to update (ones in SET part)
-     * @param primaryKeyFields fields to locate record to be updated (ones in WHERE part)
-     * @return insert query for PreparedStatement
-     */
-    public static String buildUpdateQuery(String tableName, List<String> fieldsToUpdate, List<String> primaryKeyFields) {
-        String updateQuery = "UPDATE `%s` ".formatted(tableName)
-                + "SET "
-                + "`" + String.join("` = ?, `", fieldsToUpdate) + "` = ? "
-                + "WHERE "
-                + "`" + String.join("` = ? AND `", primaryKeyFields) + "` = ? "
-                + ";";
-
-        LOGGER.info("Generated update query: \"" + updateQuery + "\"");
-
-        return updateQuery;
-    }
-
-    /**
-     * create sql query for deleting object from database
-     * this query is meant to be used with prepared statement,
-     * so it doesn't contain any values
-     *
-     * @param tableName        name of table to be altered
-     * @param primaryKeyFields fields to locate record to be updated (ones in WHERE part)
-     * @return insert query for PreparedStatement
-     */
-    public static String buildDeleteQuery(String tableName, List<String> primaryKeyFields) {
-        String deleteQuery = "DELETE FROM `%s` ".formatted(tableName)
-                + "WHERE "
-                + "`" + String.join("` = ? AND `", primaryKeyFields) + "` = ? "
-                + ";";
-
-        LOGGER.info("Generated delete query: \"" + deleteQuery + "\"");
-
-        return deleteQuery;
-    }
 
     @FunctionalInterface
     public interface StatementPreparer {

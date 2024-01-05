@@ -1,8 +1,6 @@
-package com.solvd.laba.football.persistence.impl;
+package com.solvd.laba.football.persistence.impl.util;
 
 import com.solvd.laba.football.domain.interfaces.Identifiable;
-import com.solvd.laba.football.persistence.impl.util.MySQLConnectionPool;
-import com.solvd.laba.football.persistence.impl.util.MySQLRepositoryHelper;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
@@ -12,8 +10,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * Class for doing simple operations on table from MySQL database
@@ -48,7 +48,7 @@ public class MySQLTable<T extends Identifiable> {
         try {
             MySQLRepositoryHelper.UpdateResult result = MySQLRepositoryHelper.executeUpdateGetKeys(
                     // create INSERT query
-                    MySQLRepositoryHelper.buildInsertQuery(this.name, getNonIdColumnNames()),
+                    MySQLQueryBuilder.buildInsertQuery(this.name, getNonIdColumnNames()),
                     // fill in PreparedStatement
                     preparedStatement -> {
                         for (int i = 0; i < this.nonIdColumns.size(); i++) {
@@ -73,7 +73,7 @@ public class MySQLTable<T extends Identifiable> {
         try {
             int affectedRows = MySQLRepositoryHelper.executeUpdate(
                     // create UPDATE query
-                    MySQLRepositoryHelper.buildUpdateQuery(this.name, getNonIdColumnNames(), List.of(this.idColumnName)),
+                    MySQLQueryBuilder.buildUpdateQuery(this.name, getNonIdColumnNames(), List.of(this.idColumnName)),
                     // fill in PreparedStatement
                     preparedStatement -> {
                         for (int i = 0; i < this.nonIdColumns.size(); i++) {
@@ -97,7 +97,7 @@ public class MySQLTable<T extends Identifiable> {
         try {
             int affectedRows = MySQLRepositoryHelper.executeUpdate(
                     // create DELETE query
-                    MySQLRepositoryHelper.buildDeleteQuery(this.name, List.of(this.idColumnName)),
+                    MySQLQueryBuilder.buildDeleteQuery(this.name, List.of(this.idColumnName)),
                     // fill in PreparedStatement
                     preparedStatement -> {
                         preparedStatement.setLong(1, rowData.getId());
@@ -110,34 +110,73 @@ public class MySQLTable<T extends Identifiable> {
         }
     }
 
+    /**
+     * returns row with idColumnName == id, if exists
+     *
+     * @param id
+     * @return
+     */
     public Optional<T> findRowById(long id) {
-        Optional<T> player = Optional.empty();
-        try {
-            List<T> results = MySQLRepositoryHelper.executeQuery(
-                    // create SELECT query
-                    // TODO
-                    "SELECT id, person_id FROM players WHERE id=?;",
-                    // fill in PreparedStatement
-                    preparedStatement -> preparedStatement.setLong(1, id),
-                    this::createObjectFromResultSet,
-                    CONNECTION_POOL);
-            assert results.size() < 2;
+        List<T> results = findRowsByLongColumn(this.idColumnName, id);
 
-            if (!results.isEmpty()) {
-                player = Optional.of(results.get(0));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Unable to find player", e);
+        assert results.size() < 2;
+
+        if (!results.isEmpty()) {
+            return Optional.of(results.get(0));
+        } else {
+            return Optional.empty();
         }
-        return player;
     }
 
-    //public List<T> findAllRows(long id)
-    //public List<T> findRowsByLongColumn(String longColumnName)
+    public List<T> findAllRows() {
+        try {
+            return MySQLRepositoryHelper.executeQuery(
+                    // create SELECT query
+                    MySQLQueryBuilder.buildSelectAllQuery(this.name, this.getAllColumnNames()),
+                    // fill in PreparedStatement
+                    preparedStatement -> {},
+                    this::createObjectFromResultSet,
+                    CONNECTION_POOL);
+        } catch (SQLException e) {
+            throw new RuntimeException("Unable to find row in " + this.name, e);
+        }
+    }
+
+    public List<T> findRowsByLongColumn(String longColumnName, long columnValue) {
+        if (!hasColumn(longColumnName)) {
+            throw new NoSuchElementException("No such column found '" + longColumnName + "'");
+        }
+        try {
+            return MySQLRepositoryHelper.executeQuery(
+                    // create SELECT query
+                    MySQLQueryBuilder.buildSelectByIdQuery(this.name, this.getAllColumnNames(), longColumnName),
+                    // fill in PreparedStatement
+                    preparedStatement -> {
+                        preparedStatement.setLong(1, columnValue);
+                        LOGGER.info("Inserting to column '" + longColumnName + "' at position " + 1);
+                    },
+                    this::createObjectFromResultSet,
+                    CONNECTION_POOL);
+        } catch (SQLException e) {
+            throw new RuntimeException("Unable to find row in " + this.name, e);
+        }
+    }
 
 
     /**
-     * return list of column names, with the same order as this.nonIdColumns
+     * return list of all column names, with the same order as this.nonIdColumns
+     * but with id column at first position
+     *
+     * @return
+     */
+    private List<String> getAllColumnNames() {
+        return Stream.concat(Stream.of(this.idColumnName),
+                        this.nonIdColumns.stream().map(Column::name))
+                .toList();
+    }
+
+    /**
+     * return list of column names (without id column), with the same order as this.nonIdColumns
      *
      * @return
      */
@@ -146,6 +185,28 @@ public class MySQLTable<T extends Identifiable> {
                 .map(Column::name)
                 .toList();
     }
+
+    private Column<T> getNonIdColumnByName(String name) {
+        return this.nonIdColumns.stream()
+                .filter(column -> column.name().equals(name))
+                .findAny()
+                .orElseThrow(() -> new NoSuchElementException("No such column found '" + name + "'"));
+    }
+
+    /**
+     * checks whether this table has column with given name
+     * this checks also idColumnName, so true result cannot guarantee
+     * that getNonIdColumnByName won't throw exception
+     *
+     * @param name name of the column to check
+     * @return whether this table has specified column
+     */
+    private boolean hasColumn(String name) {
+        return Stream.concat(Stream.of(this.idColumnName),
+                        this.nonIdColumns.stream().map(Column::name))
+                .anyMatch(columnName -> columnName.equals(name));
+    }
+
 
     private T createObjectFromResultSet(ResultSet resultSet) throws SQLException {
         T rowData = this.rowDataCreator.get();
@@ -159,13 +220,15 @@ public class MySQLTable<T extends Identifiable> {
         return rowData;
     }
 
+
     /**
      * @param name
-     * @param statementSetter
+     * @param statementSetter used to fill in prepared statement in insert and
+     *                        update operations (and only in those)
      * @param resultSaver     saves element from ResultSet to U (rowData) type
      * @param <U>             type of object storing row data
      */
-    protected record Column<U>(
+    public record Column<U>(
             String name,
             StatementSetter<U> statementSetter,
             ResultSaver<U> resultSaver
@@ -178,7 +241,7 @@ public class MySQLTable<T extends Identifiable> {
      * @param <U>
      */
     @FunctionalInterface
-    protected interface StatementSetter<U> {
+    public interface StatementSetter<U> {
         void set(PreparedStatement preparedStatement, int parameterIndex, U source) throws SQLException;
     }
 
@@ -188,7 +251,7 @@ public class MySQLTable<T extends Identifiable> {
      * @param <U>
      */
     @FunctionalInterface
-    protected interface ResultSaver<U> {
+    public interface ResultSaver<U> {
         void save(ResultSet resultSet, String columnLabel, U source) throws SQLException;
     }
 }

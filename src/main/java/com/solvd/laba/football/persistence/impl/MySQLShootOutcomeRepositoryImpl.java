@@ -2,6 +2,7 @@ package com.solvd.laba.football.persistence.impl;
 
 import com.solvd.laba.football.domain.ShootOutcome;
 import com.solvd.laba.football.persistence.ShootOutcomeRepository;
+import com.solvd.laba.football.persistence.impl.util.MySQLTable;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,27 +24,27 @@ public class MySQLShootOutcomeRepositoryImpl implements ShootOutcomeRepository {
 
     @Override
     public void create(ShootOutcome shootOutcome) {
-        shootOutcomesTable.insertRow(shootOutcome);
+        this.shootOutcomesTable.insertRow(shootOutcome);
     }
 
     @Override
     public void update(ShootOutcome shootOutcome) {
-        shootOutcomesTable.updateRow(shootOutcome);
+        this.shootOutcomesTable.updateRow(shootOutcome);
     }
 
     @Override
     public void delete(ShootOutcome shootOutcome) {
-        shootOutcomesTable.deleteRow(shootOutcome);
+        this.shootOutcomesTable.deleteRow(shootOutcome);
     }
 
     @Override
     public Optional<ShootOutcome> findById(long id) {
-        return Optional.empty();
+        return this.shootOutcomesTable.findRowById(id);
     }
 
     @Override
     public List<ShootOutcome> findAll() {
-        return null;
+        return this.shootOutcomesTable.findAllRows();
     }
 
 
