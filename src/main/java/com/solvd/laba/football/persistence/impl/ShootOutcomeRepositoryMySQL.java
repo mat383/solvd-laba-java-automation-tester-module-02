@@ -10,14 +10,14 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class MySQLShootOutcomeRepositoryImpl implements ShootOutcomeRepository {
+public class ShootOutcomeRepositoryMySQL implements ShootOutcomeRepository {
     private final MySQLTable<ShootOutcome> shootOutcomesTable = new MySQLTable<>(
             "shoot_outcomes",
             "id",
             List.of(
                     new MySQLTable.Column<>("name",
-                            MySQLShootOutcomeRepositoryImpl::nameResultSetter,
-                            MySQLShootOutcomeRepositoryImpl::nameResultSaver)
+                            ShootOutcomeRepositoryMySQL::nameResultSetter,
+                            ShootOutcomeRepositoryMySQL::nameResultSaver)
             ),
             () -> new ShootOutcome(null, null)
     );
@@ -48,11 +48,13 @@ public class MySQLShootOutcomeRepositoryImpl implements ShootOutcomeRepository {
     }
 
 
-    private static void nameResultSetter(PreparedStatement preparedStatement, int parameterIndex, ShootOutcome shootOutcome) throws SQLException {
+    private static void nameResultSetter(PreparedStatement preparedStatement, int parameterIndex,
+                                         ShootOutcome shootOutcome) throws SQLException {
         preparedStatement.setString(parameterIndex, shootOutcome.getName());
     }
 
-    private static void nameResultSaver(ResultSet resultSet, String columnLabel, ShootOutcome shootOutcome) throws SQLException {
+    private static void nameResultSaver(ResultSet resultSet, String columnLabel,
+                                        ShootOutcome shootOutcome) throws SQLException {
         shootOutcome.setName(resultSet.getString(columnLabel));
     }
 }

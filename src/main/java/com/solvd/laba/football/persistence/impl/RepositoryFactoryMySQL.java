@@ -2,30 +2,30 @@ package com.solvd.laba.football.persistence.impl;
 
 import com.solvd.laba.football.persistence.*;
 
-public class MySQLRepositoryFactory implements RepositoryFactory {
+public class RepositoryFactoryMySQL implements RepositoryFactory {
 
     @Override
     public PersonRepository createPersonRepository() {
-        return new MySQLPersonRepositoryImpl();
+        return new PersonRepositoryMySQL();
     }
 
     @Override
     public PlayerRepository createPlayerRepository() {
-        return new MySQLPlayerRepositoryImpl();
+        return new PlayerRepositoryMySQL();
     }
 
     @Override
     public TeamRepository createTeamRepository() {
-        return new MySQLTeamRepositoryImpl();
+        return new TeamRepositoryMySQL();
     }
 
     @Override
     public PositionRepository createPositionRepository() {
-        return new MySQLPositionRepositoryImpl();
+        return new PositionRepositoryMySQL();
     }
 
     @Override
     public ShootOutcomeRepository createShootOutcomeRepository() {
-        return new MySQLShootOutcomeRepositoryImpl();
+        return new ShootOutcomeRepositoryMySQL();
     }
 }

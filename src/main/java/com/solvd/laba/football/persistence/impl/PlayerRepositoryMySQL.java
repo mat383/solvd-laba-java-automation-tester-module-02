@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class MySQLPlayerRepositoryImpl implements PlayerRepository {
-    private static final Logger LOGGER = LogManager.getLogger(MySQLPlayerRepositoryImpl.class.getName());
+public class PlayerRepositoryMySQL implements PlayerRepository {
+    private static final Logger LOGGER = LogManager.getLogger(PlayerRepositoryMySQL.class.getName());
     private static final MySQLConnectionPool CONNECTION_POOL = MySQLConnectionPool.getInstance();
 
 
@@ -87,7 +87,7 @@ public class MySQLPlayerRepositoryImpl implements PlayerRepository {
             List<Player> results = MySQLRepositoryHelper.executeQuery(
                     "SELECT id, person_id FROM players WHERE id=?;",
                     preparedStatement -> preparedStatement.setLong(1, id),
-                    MySQLPlayerRepositoryImpl::createPlayerFromResultSet,
+                    PlayerRepositoryMySQL::createPlayerFromResultSet,
                     CONNECTION_POOL);
             assert results.size() < 2;
 
@@ -106,7 +106,7 @@ public class MySQLPlayerRepositoryImpl implements PlayerRepository {
             return MySQLRepositoryHelper.executeQuery(
                     "SELECT id, person_id FROM players;",
                     preparedStatement -> {},
-                    MySQLPlayerRepositoryImpl::createPlayerFromResultSet,
+                    PlayerRepositoryMySQL::createPlayerFromResultSet,
                     CONNECTION_POOL);
         } catch (SQLException e) {
             throw new RuntimeException("Unable to find player", e);
@@ -120,7 +120,7 @@ public class MySQLPlayerRepositoryImpl implements PlayerRepository {
             return MySQLRepositoryHelper.executeQuery(
                     "SELECT id, person_id FROM players WHERE team_id=?;",
                     preparedStatement -> preparedStatement.setLong(1, teamId),
-                    MySQLPlayerRepositoryImpl::createPlayerFromResultSet,
+                    PlayerRepositoryMySQL::createPlayerFromResultSet,
                     CONNECTION_POOL);
         } catch (SQLException e) {
             throw new RuntimeException("Unable to find player", e);

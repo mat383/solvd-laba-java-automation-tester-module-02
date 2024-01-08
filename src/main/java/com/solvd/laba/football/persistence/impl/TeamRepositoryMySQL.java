@@ -15,8 +15,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public class MySQLTeamRepositoryImpl implements TeamRepository {
-    private static final Logger LOGGER = LogManager.getLogger(MySQLTeamRepositoryImpl.class.getName());
+public class TeamRepositoryMySQL implements TeamRepository {
+    private static final Logger LOGGER = LogManager.getLogger(TeamRepositoryMySQL.class.getName());
     private static final MySQLConnectionPool CONNECTION_POOL = MySQLConnectionPool.getInstance();
 
     @Override
@@ -91,7 +91,7 @@ public class MySQLTeamRepositoryImpl implements TeamRepository {
             List<Team> results = MySQLRepositoryHelper.executeQuery(
                     "SELECT id, name, club_id, creation_date, closure_date, league_id, league_position FROM teams WHERE id=?;",
                     preparedStatement -> preparedStatement.setLong(1, id),
-                    MySQLTeamRepositoryImpl::createTeamFromResultSet,
+                    TeamRepositoryMySQL::createTeamFromResultSet,
                     CONNECTION_POOL);
             if (!results.isEmpty()) {
                 team = Optional.of(results.get(1));
@@ -108,7 +108,7 @@ public class MySQLTeamRepositoryImpl implements TeamRepository {
             return MySQLRepositoryHelper.executeQuery(
                     "SELECT id, name, club_id, creation_date, closure_date, league_id, league_position FROM teams;",
                     preparedStatement -> {},
-                    MySQLTeamRepositoryImpl::createTeamFromResultSet,
+                    TeamRepositoryMySQL::createTeamFromResultSet,
                     CONNECTION_POOL);
         } catch (SQLException e) {
             throw new RuntimeException("Unable to create team", e);
@@ -121,7 +121,7 @@ public class MySQLTeamRepositoryImpl implements TeamRepository {
             return MySQLRepositoryHelper.executeQuery(
                     "SELECT id, name, club_id, creation_date, closure_date, league_id, league_position FROM teams WHERE club_id=?;",
                     preparedStatement -> preparedStatement.setLong(1, id),
-                    MySQLTeamRepositoryImpl::createTeamFromResultSet,
+                    TeamRepositoryMySQL::createTeamFromResultSet,
                     CONNECTION_POOL);
         } catch (SQLException e) {
             throw new RuntimeException("Unable to create team", e);

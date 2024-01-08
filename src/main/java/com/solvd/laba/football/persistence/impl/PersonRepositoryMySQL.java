@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class MySQLPersonRepositoryImpl implements PersonRepository {
-    private static final Logger LOGGER = LogManager.getLogger(MySQLPersonRepositoryImpl.class.getName());
+public class PersonRepositoryMySQL implements PersonRepository {
+    private static final Logger LOGGER = LogManager.getLogger(PersonRepositoryMySQL.class.getName());
     private static final MySQLConnectionPool CONNECTION_POOL = MySQLConnectionPool.getInstance();
 
 
@@ -93,7 +93,7 @@ public class MySQLPersonRepositoryImpl implements PersonRepository {
             List<Person> results = MySQLRepositoryHelper.executeQuery(
                     "SELECT id, first_name, last_name, birth_date FROM people WHERE id=?;",
                     preparedStatement -> preparedStatement.setLong(1, id),
-                    MySQLPersonRepositoryImpl::createPersonFromResultSet,
+                    PersonRepositoryMySQL::createPersonFromResultSet,
                     CONNECTION_POOL);
             assert results.size() < 2;
 
@@ -112,7 +112,7 @@ public class MySQLPersonRepositoryImpl implements PersonRepository {
             return MySQLRepositoryHelper.executeQuery(
                     "SELECT id, first_name, last_name, birth_date FROM people;",
                     preparedStatement -> {},
-                    MySQLPersonRepositoryImpl::createPersonFromResultSet,
+                    PersonRepositoryMySQL::createPersonFromResultSet,
                     CONNECTION_POOL);
         } catch (SQLException e) {
             throw new RuntimeException("Unable to find person", e);
