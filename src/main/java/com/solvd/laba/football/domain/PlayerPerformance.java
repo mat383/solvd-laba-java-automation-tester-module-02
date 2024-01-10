@@ -21,6 +21,7 @@ public class PlayerPerformance implements Identifiable {
     private LocalTime start;
     private LocalTime end;
     private Position position;
+    private Team team;
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private List<PenaltyShot> penaltyShots = new ArrayList<>();
@@ -30,7 +31,7 @@ public class PlayerPerformance implements Identifiable {
 
     public PlayerPerformance(Long id, Game game,
                              Double defensivePerformance, Double offensivePerformance, Double cooperativePerformance,
-                             LocalTime start, LocalTime end, Position position) {
+                             LocalTime start, LocalTime end, Position position, Team team) {
         this.id = id;
         this.game = game;
         this.defensivePerformance = defensivePerformance;
@@ -39,6 +40,7 @@ public class PlayerPerformance implements Identifiable {
         this.start = start;
         this.end = end;
         this.position = position;
+        this.team = team;
     }
 
     @Override

@@ -1,10 +1,7 @@
 package com.solvd.laba.football.domain;
 
 import com.solvd.laba.football.domain.interfaces.Identifiable;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
@@ -12,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Getter
+@NoArgsConstructor
 public class Team implements Identifiable {
     private Long id;
     @NonNull
