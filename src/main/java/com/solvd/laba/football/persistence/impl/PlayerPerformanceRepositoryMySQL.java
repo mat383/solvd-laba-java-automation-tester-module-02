@@ -33,12 +33,15 @@ public class PlayerPerformanceRepositoryMySQL implements PlayerPerformanceReposi
 
     @Override
     public void delete(PlayerPerformance playerPerformance) {
-        this.playerPerformanceTable.deleteRow(PlayerPerformanceTransfer.of(playerPerformance, null));
+        this.playerPerformanceTable.deleteRow(
+                PlayerPerformanceTransfer.of(playerPerformance, null)
+        );
     }
 
     @Override
     public Optional<PlayerPerformance> findById(long id) {
-        return this.playerPerformanceTable.findRowById(id);
+        return this.playerPerformanceTable.findRowById(id)
+                .map(PlayerPerformanceTransfer::toPlayerPerformance);
     }
 
     @Override

@@ -27,10 +27,10 @@ public class TeamServiceImpl implements TeamService {
         // TODO add support for failure
         this.teamRepository.create(team, clubId, leagueId, leaguePosition);
         for (Player player : team.getPlayers()) {
-            if (playerService.findById(player.getId()).isPresent()) {
-                playerService.update(player, team.getId());
+            if (this.playerService.findById(player.getId()).isPresent()) {
+                this.playerService.update(player, team.getId());
             } else {
-                playerService.create(player, team.getId());
+                this.playerService.create(player, team.getId());
             }
         }
     }
@@ -43,10 +43,10 @@ public class TeamServiceImpl implements TeamService {
         // TODO add support for failure
         this.teamRepository.update(team, clubId, leagueId, leaguePosition);
         for (Player player : team.getPlayers()) {
-            if (playerService.findById(player.getId()).isPresent()) {
-                playerService.update(player, team.getId());
+            if (this.playerService.findById(player.getId()).isPresent()) {
+                this.playerService.update(player, team.getId());
             } else {
-                playerService.create(player, team.getId());
+                this.playerService.create(player, team.getId());
             }
         }
     }
@@ -55,7 +55,7 @@ public class TeamServiceImpl implements TeamService {
     public void delete(Team team) {
         // TODO add support for failure
         for (Player player : team.getPlayers()) {
-            playerService.delete(player);
+            this.playerService.delete(player);
         }
         this.teamRepository.delete(team);
     }
