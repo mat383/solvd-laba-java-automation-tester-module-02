@@ -58,7 +58,7 @@ public class GoalAttemptRepositoryMySQL implements GoalAttemptRepository {
     public List<GoalAttempt> findByRelatedPerformanceId(long id) {
         try {
             return MySQLRepositoryHelper.executeQuery(
-                    "SELECT id, game_time, defender_performance_id, attacker_performance_id, outcome_id" +
+                    "SELECT id, game_time, defender_performance_id, attacker_performance_id, outcome_id " +
                             "FROM goal_attempts WHERE defender_performance_id = ? OR attacker_performance_id = ?;",
                     preparedStatement -> {
                         preparedStatement.setLong(1, id);

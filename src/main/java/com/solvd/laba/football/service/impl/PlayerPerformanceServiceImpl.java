@@ -68,14 +68,18 @@ public class PlayerPerformanceServiceImpl implements PlayerPerformanceService {
     public void delete(PlayerPerformance playerPerformance) {
         // delete penalty shots
         while (!playerPerformance.getPenaltyShots().isEmpty()) {
-            PenaltyShot penaltyShot = playerPerformance.getPenaltyShots().removeLast();
+            PenaltyShot penaltyShot = playerPerformance.getPenaltyShots().remove(
+                    playerPerformance.getPenaltyShots().size() - 1
+            );
             // delete probably will try to remove it from playerPerformance
             this.penaltyShootService.delete(penaltyShot);
         }
 
         // delete goal attempts
         while (!playerPerformance.getGoalAttempts().isEmpty()) {
-            GoalAttempt goalAttempt = playerPerformance.getGoalAttempts().removeLast();
+            GoalAttempt goalAttempt = playerPerformance.getGoalAttempts().remove(
+                    playerPerformance.getGoalAttempts().size() - 1
+            );
             // delete probably will try to remove it from playerPerformance
             this.goalAttemptService.delete(goalAttempt);
         }

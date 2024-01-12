@@ -58,7 +58,7 @@ public class PenaltyShotRepositoryMySQL implements PenaltyShotRepository {
     public List<PenaltyShot> findByRelatedPerformanceId(long id) {
         try {
             return MySQLRepositoryHelper.executeQuery(
-                    "SELECT id, goalkeeper_performance_id, shooter_performance_id, outcome_id, game_time" +
+                    "SELECT id, goalkeeper_performance_id, shooter_performance_id, outcome_id, game_time " +
                             "FROM penalty_shots WHERE goalkeeper_performance_id = ? OR shooter_performance_id = ?;",
                     preparedStatement -> {
                         preparedStatement.setLong(1, id);

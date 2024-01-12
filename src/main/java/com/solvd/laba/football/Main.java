@@ -2,16 +2,16 @@ package com.solvd.laba.football;
 
 
 import com.solvd.laba.football.domain.Person;
+import com.solvd.laba.football.domain.PlayerPerformance;
 import com.solvd.laba.football.domain.Position;
 import com.solvd.laba.football.domain.ShootOutcome;
 import com.solvd.laba.football.persistence.RepositoryFactory;
+import com.solvd.laba.football.persistence.impl.GoalAttemptRepositoryMySQL;
+import com.solvd.laba.football.persistence.impl.PenaltyShotRepositoryMySQL;
+import com.solvd.laba.football.persistence.impl.PlayerPerformanceRepositoryMySQL;
 import com.solvd.laba.football.persistence.impl.RepositoryFactoryMySQL;
-import com.solvd.laba.football.service.PersonService;
-import com.solvd.laba.football.service.PositionService;
-import com.solvd.laba.football.service.ShootOutcomeService;
-import com.solvd.laba.football.service.impl.PersonServiceImpl;
-import com.solvd.laba.football.service.impl.PositionServiceImpl;
-import com.solvd.laba.football.service.impl.ShootOutcomeServiceImpl;
+import com.solvd.laba.football.service.*;
+import com.solvd.laba.football.service.impl.*;
 
 import java.util.List;
 
@@ -25,6 +25,15 @@ public class Main {
                 repositoryFactory.createPositionRepository());
         ShootOutcomeService shootOutcomeService = new ShootOutcomeServiceImpl(
                 repositoryFactory.createShootOutcomeRepository());
+        GoalAttemptService goalAttemptService = new GoalAttemptServiceImpl(
+                new GoalAttemptRepositoryMySQL());
+        PenaltyShootService penaltyShootService = new PenaltyShotServiceImpl(
+                new PenaltyShotRepositoryMySQL());
+        PlayerPerformanceServiceImpl playerPerformanceService = new PlayerPerformanceServiceImpl(
+                new PlayerPerformanceRepositoryMySQL(),
+                goalAttemptService,
+                penaltyShootService,
+                positionService);
 
         List<Person> people = personService.findAll();
         for (Person personTest : people) {
@@ -40,6 +49,10 @@ public class Main {
         List<ShootOutcome> shootOutcomes = shootOutcomeService.findAll();
         for (ShootOutcome so : shootOutcomes) {
             System.out.println(so.getId() + " - " + so.getName());
+        }
+
+        for (PlayerPerformance playerPerformance : playerPerformanceService.findAll()) {
+            System.out.println("playerPerformanceId: " + playerPerformance.getId());
         }
     }
 }

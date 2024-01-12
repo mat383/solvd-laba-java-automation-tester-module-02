@@ -71,7 +71,7 @@ public class PlayerPerformanceRepositoryMySQL implements PlayerPerformanceReposi
 
     private static MySQLTable<PlayerPerformanceTransfer> createPlayerPerformanceTableDescription() {
         return new MySQLTable<>(
-                "player_performances",
+                "players_performances",
                 "id",
                 createPlayerPerformanceColumnsDescription(),
                 PlayerPerformanceTransfer::new
