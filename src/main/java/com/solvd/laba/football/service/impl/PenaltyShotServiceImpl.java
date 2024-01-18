@@ -14,14 +14,15 @@ public class PenaltyShotServiceImpl implements PenaltyShootService {
         this.penaltyShotRepository = penaltyShotRepository;
     }
 
+
     @Override
-    public void create(PenaltyShot penaltyShot) {
-        this.penaltyShotRepository.create(penaltyShot);
+    public void create(PenaltyShot penaltyShot, long goalkeeperPerformanceId, long shooterPerformanceId) {
+        this.penaltyShotRepository.create(penaltyShot, goalkeeperPerformanceId, shooterPerformanceId);
     }
 
     @Override
-    public void update(PenaltyShot penaltyShot) {
-        this.penaltyShotRepository.update(penaltyShot);
+    public void update(PenaltyShot penaltyShot, long goalkeeperPerformanceId, long shooterPerformanceId) {
+        this.penaltyShotRepository.update(penaltyShot, goalkeeperPerformanceId, shooterPerformanceId);
     }
 
     @Override

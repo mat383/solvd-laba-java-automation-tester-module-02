@@ -4,9 +4,6 @@ import com.solvd.laba.football.domain.Game;
 import com.solvd.laba.football.persistence.GameRepository;
 import com.solvd.laba.football.persistence.impl.util.MySQLTable;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Time;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -16,25 +13,8 @@ import java.util.Optional;
 public class GameRepositoryMySQL implements GameRepository {
 
     // TODO when stadiums are implemented add them here
-    private MySQLTable<Game> gamesTable = new MySQLTable<>(
-            "games",
-            "id",
-            List.of(
-                    new MySQLTable.Column<>("name",
-                            GameRepositoryMySQL::nameResultSetter,
-                            GameRepositoryMySQL::nameResultSaver),
-                    new MySQLTable.Column<>("time",
-                            GameRepositoryMySQL::timeResultSetter,
-                            GameRepositoryMySQL::timeResultSaver),
-                    new MySQLTable.Column<>("duration",
-                            GameRepositoryMySQL::durationResultSetter,
-                            GameRepositoryMySQL::durationResultSaver),
-                    new MySQLTable.Column<>("first_half_duration",
-                            GameRepositoryMySQL::firstHalfDurationResultSetter,
-                            GameRepositoryMySQL::firstHalfDurationResultSaver)
-            ),
-            () -> new Game(null, null, null, null, null, null, null)
-    );
+    private final MySQLTable<Game> gamesTable = createGamesTableDescription();
+
 
     @Override
     public void create(Game game) {
@@ -62,49 +42,63 @@ public class GameRepositoryMySQL implements GameRepository {
     }
 
 
-    private static void nameResultSetter(PreparedStatement preparedStatement, int parameterIndex,
-                                         Game game) throws SQLException {
-        preparedStatement.setString(parameterIndex, game.getName());
+    private static MySQLTable<Game> createGamesTableDescription() {
+        return new MySQLTable<>(
+                "games",
+                "id",
+                createGamesColumnsDescription(),
+                Game::new
+        );
     }
 
-    private static void nameResultSaver(ResultSet resultSet, String columnLabel,
-                                        Game game) throws SQLException {
-        game.setName(resultSet.getString(columnLabel));
-    }
-
-    private static void timeResultSetter(PreparedStatement preparedStatement, int parameterIndex,
-                                         Game game) throws SQLException {
-        preparedStatement.setObject(parameterIndex, game.getTime());
-    }
-
-    private static void timeResultSaver(ResultSet resultSet, String columnLabel,
-                                        Game game) throws SQLException {
-        game.setTime(resultSet.getObject(columnLabel, LocalDateTime.class));
-    }
-
-    private static void durationResultSetter(PreparedStatement preparedStatement, int parameterIndex,
-                                             Game game) throws SQLException {
-        preparedStatement.setTime(parameterIndex, new Time(game.getDuration().toMillis()));
-    }
-
-    private static void durationResultSaver(ResultSet resultSet, String columnLabel,
-                                            Game game) throws SQLException {
-        // TODO make it use the same unit as result setter
-        game.setDuration(Duration.ofNanos(
-                resultSet.getTime(columnLabel).toLocalTime().toNanoOfDay()
-        ));
-    }
-
-    private static void firstHalfDurationResultSetter(PreparedStatement preparedStatement, int parameterIndex,
-                                                      Game game) throws SQLException {
-        preparedStatement.setTime(parameterIndex, new Time(game.getFirstHalfDuration().toMillis()));
-    }
-
-    private static void firstHalfDurationResultSaver(ResultSet resultSet, String columnLabel,
-                                                     Game game) throws SQLException {
-        // TODO make it use the same unit as result setter
-        game.setFirstHalfDuration(Duration.ofNanos(
-                resultSet.getTime(columnLabel).toLocalTime().toNanoOfDay()
-        ));
+    private static List<MySQLTable.Column<Game>> createGamesColumnsDescription() {
+        return List.of(
+                new MySQLTable.Column<>("name",
+                        // setting prepared statement
+                        (preparedStatement, parameterIndex, game) -> {
+                            preparedStatement.setString(parameterIndex, game.getName());
+                        },
+                        // saving results
+                        (resultSet, columnLabel, game) -> {
+                            game.setName(resultSet.getString(columnLabel));
+                        }
+                ),
+                new MySQLTable.Column<>("time",
+                        // setting prepared statement
+                        (preparedStatement, parameterIndex, game) -> {
+                            preparedStatement.setObject(parameterIndex, game.getTime());
+                        },
+                        // saving results
+                        (resultSet, columnLabel, game) -> {
+                            game.setTime(resultSet.getObject(columnLabel, LocalDateTime.class));
+                        }
+                ),
+                new MySQLTable.Column<>("duration",
+                        // setting prepared statement
+                        (preparedStatement, parameterIndex, game) -> {
+                            preparedStatement.setTime(parameterIndex, new Time(game.getDuration().toMillis()));
+                        },
+                        // saving results
+                        (resultSet, columnLabel, game) -> {
+                            // TODO make it use the same unit as result setter
+                            game.setDuration(Duration.ofNanos(
+                                    resultSet.getTime(columnLabel).toLocalTime().toNanoOfDay()
+                            ));
+                        }
+                ),
+                new MySQLTable.Column<>("first_half_duration",
+                        // setting prepared statement
+                        (preparedStatement, parameterIndex, game) -> {
+                            preparedStatement.setTime(parameterIndex, new Time(game.getFirstHalfDuration().toMillis()));
+                        },
+                        // saving results
+                        (resultSet, columnLabel, game) -> {
+                            // TODO make it use the same unit as result setter
+                            game.setFirstHalfDuration(Duration.ofNanos(
+                                    resultSet.getTime(columnLabel).toLocalTime().toNanoOfDay()
+                            ));
+                        }
+                )
+        );
     }
 }

@@ -3,8 +3,19 @@ package com.solvd.laba.football.persistence;
 import com.solvd.laba.football.domain.GoalAttempt;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface GoalAttemptRepository extends IRepository<GoalAttempt> {
+public interface GoalAttemptRepository {
+
+    void create(GoalAttempt goalAttempt, long defenderPerformanceId, long attackerPerformanceId);
+
+    void update(GoalAttempt goalAttempt, long defenderPerformanceId, long attackerPerformanceId);
+
+    void delete(GoalAttempt goalAttempt);
+
+    Optional<GoalAttempt> findById(long id);
+
+    List<GoalAttempt> findAll();
 
     List<GoalAttempt> findByDefenderPerformanceId(long id);
 

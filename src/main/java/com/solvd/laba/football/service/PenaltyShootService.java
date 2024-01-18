@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PenaltyShootService {
-    void create(PenaltyShot penaltyShot);
+    void create(PenaltyShot penaltyShot, long goalkeeperPerformanceId, long shooterPerformanceId);
 
-    void update(PenaltyShot penaltyShot);
+    void update(PenaltyShot penaltyShot, long goalkeeperPerformanceId, long shooterPerformanceId);
 
     void delete(PenaltyShot penaltyShot);
 

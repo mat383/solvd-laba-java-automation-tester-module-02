@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Getter
 @Setter
@@ -19,12 +21,12 @@ public class Game implements Identifiable {
     private LocalDateTime time;
     private Duration duration;
     private Duration firstHalfDuration;
-    private Team teamA;
+    private Team teamA = new Team();
     @Setter(AccessLevel.NONE)
-    private List<Player> playersTeamA = new ArrayList<>();
-    private Team teamB;
+    private List<PlayerPerformance> playerPerformancesTeamA = new ArrayList<>();
+    private Team teamB = new Team();
     @Setter(AccessLevel.NONE)
-    private List<Player> playersTeamB = new ArrayList<>();
+    private List<PlayerPerformance> playerPerformancesTeamB = new ArrayList<>();
 
     public Game(Long id, String name,
                 LocalDateTime time, Duration duration, Duration firstHalfDuration,
@@ -47,27 +49,100 @@ public class Game implements Identifiable {
     }
 
 
-    public List<Player> getPlayersFromTeamA() {
-        return Collections.unmodifiableList(this.playersTeamA);
+    /**
+     * removes playerPerformance from a team he is in
+     *
+     * @param playerPerformance
+     */
+    public void removePlayerPerformance(@NonNull PlayerPerformance playerPerformance) {
+        this.playerPerformancesTeamA.remove(playerPerformance);
+        this.playerPerformancesTeamB.remove(playerPerformance);
     }
 
-    public void addPlayerToTeamA(@NonNull Player player) {
-        this.playersTeamA.add(player);
+    /**
+     * add player performance to team, based on player performance team
+     * player performance team have to mach one of the game teams and cannot be null
+     * player's game is automatically set to this game
+     *
+     * @param playerPerformance
+     */
+    public void addPlayerPerformance(@NonNull PlayerPerformance playerPerformance) {
+        if (playerPerformance.getTeam() == null) {
+            throw new IllegalArgumentException("Player performance team cannot be null");
+        }
+
+        if (playerPerformance.getTeam().equals(this.teamA)) {
+            this.playerPerformancesTeamA.add(playerPerformance);
+            playerPerformance.setGame(this);
+        } else if (playerPerformance.getTeam().equals(this.teamB)) {
+            this.playerPerformancesTeamB.add(playerPerformance);
+            playerPerformance.setGame(this);
+        } else {
+            throw new IllegalArgumentException("Player performance team doesn't match any of the game teams");
+        }
     }
 
-    public void removePlayerFromTeamA(@NonNull Player player) {
-        this.playersTeamA.remove(player);
+    public List<PlayerPerformance> getPlayerPerformancesFromTeamA() {
+        return Collections.unmodifiableList(this.playerPerformancesTeamA);
     }
 
-    public List<Player> getPlayersFromTeamB() {
-        return Collections.unmodifiableList(this.playersTeamB);
+    /**
+     * adds player performance to team A
+     * and sets player performance's game to this game
+     *
+     * @param playerPerformance
+     */
+    public void addPlayerPerformanceToTeamA(@NonNull PlayerPerformance playerPerformance) {
+        this.playerPerformancesTeamA.add(playerPerformance);
+        playerPerformance.setGame(this);
     }
 
-    public void addPlayerToTeamB(@NonNull Player player) {
-        this.playersTeamB.add(player);
+
+    public List<PlayerPerformance> getPlayerPerformancesFromTeamB() {
+        return Collections.unmodifiableList(this.playerPerformancesTeamB);
     }
 
-    public void removePlayerFromTeamB(@NonNull Player player) {
-        this.playersTeamB.remove(player);
+    /**
+     * adds player performance to team B
+     * and sets player performance's game to this game
+     *
+     * @param playerPerformance
+     */
+    public void addPlayerPerformanceToTeamB(@NonNull PlayerPerformance playerPerformance) {
+        this.playerPerformancesTeamB.add(playerPerformance);
+        playerPerformance.setGame(this);
+    }
+
+
+    public Optional<PlayerPerformance> findGoalkeeperPerformance(PenaltyShot penaltyShot) {
+        return Stream.concat(
+                        this.playerPerformancesTeamA.stream(),
+                        this.playerPerformancesTeamB.stream())
+                .filter((playerPerformance -> playerPerformance.hasPenaltyShotAsGoalkeeper(penaltyShot)))
+                .findAny();
+    }
+
+    public Optional<PlayerPerformance> findShooterPerformance(PenaltyShot penaltyShot) {
+        return Stream.concat(
+                        this.playerPerformancesTeamA.stream(),
+                        this.playerPerformancesTeamB.stream())
+                .filter((playerPerformance -> playerPerformance.hasPenaltyShotAsShooter(penaltyShot)))
+                .findAny();
+    }
+
+    public Optional<PlayerPerformance> findAttackerPerformance(GoalAttempt goalAttempt) {
+        return Stream.concat(
+                        this.playerPerformancesTeamA.stream(),
+                        this.playerPerformancesTeamB.stream())
+                .filter((playerPerformance -> playerPerformance.hasGoalAttemptAsAttacker(goalAttempt)))
+                .findAny();
+    }
+
+    public Optional<PlayerPerformance> findDefenderPerformance(GoalAttempt goalAttempt) {
+        return Stream.concat(
+                        this.playerPerformancesTeamA.stream(),
+                        this.playerPerformancesTeamB.stream())
+                .filter((playerPerformance -> playerPerformance.hasGoalAttemptAsDefender(goalAttempt)))
+                .findAny();
     }
 }

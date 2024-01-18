@@ -2,21 +2,20 @@ package com.solvd.laba.football.domain;
 
 import com.solvd.laba.football.domain.interfaces.Identifiable;
 import lombok.Getter;
-import lombok.NonNull;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Getter
+@NoArgsConstructor
 public class Person implements Identifiable {
-    // TODO: figure out how to make id final
     private Long id;
     @Setter
     private String firstName;
     @Setter
     private String lastName;
     @Setter
-    @NonNull
     private LocalDate birthDate;
 
     public Person(Long id, String firstName, String lastName, LocalDate birthDate) {

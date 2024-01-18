@@ -33,56 +33,44 @@ public class PlayerPerformanceServiceImpl implements PlayerPerformanceService {
         this.positionService = positionService;
     }
 
+
     @Override
-    public void create(PlayerPerformance playerPerformance, long playerId) {
+    public void create(PlayerPerformance playerPerformance) {
         // create player performance
-        this.playerPerformanceRepository.create(playerPerformance, playerId);
+        this.playerPerformanceRepository.create(playerPerformance);
 
         // create position if not exists, otherwise update it
         createOrUpdatePosition(playerPerformance.getPosition());
 
         // create / update penalty shots
-        createOrUpdatePenaltyShots(playerPerformance.getPenaltyShots());
+        createOrUpdatePenaltyShots(playerPerformance);
 
         // create / update goal attempts
-        createOrUpdateGoalAttempt(playerPerformance.getGoalAttempts());
+        createOrUpdateGoalAttempt(playerPerformance);
     }
 
     @Override
-    public void update(PlayerPerformance playerPerformance, long playerId) {
+    public void update(PlayerPerformance playerPerformance) {
         // create player performance
-        this.playerPerformanceRepository.update(playerPerformance, playerId);
+        this.playerPerformanceRepository.update(playerPerformance);
 
         // create position if not exists, otherwise update it
         createOrUpdatePosition(playerPerformance.getPosition());
 
         // create / update penalty shots
-        createOrUpdatePenaltyShots(playerPerformance.getPenaltyShots());
+        createOrUpdatePenaltyShots(playerPerformance);
 
         // create / update goal attempts
-        createOrUpdateGoalAttempt(playerPerformance.getGoalAttempts());
-
+        createOrUpdateGoalAttempt(playerPerformance);
     }
 
     @Override
     public void delete(PlayerPerformance playerPerformance) {
         // delete penalty shots
-        while (!playerPerformance.getPenaltyShots().isEmpty()) {
-            PenaltyShot penaltyShot = playerPerformance.getPenaltyShots().remove(
-                    playerPerformance.getPenaltyShots().size() - 1
-            );
-            // delete probably will try to remove it from playerPerformance
-            this.penaltyShootService.delete(penaltyShot);
-        }
+        deleteRelatedPenaltyShots(playerPerformance);
 
         // delete goal attempts
-        while (!playerPerformance.getGoalAttempts().isEmpty()) {
-            GoalAttempt goalAttempt = playerPerformance.getGoalAttempts().remove(
-                    playerPerformance.getGoalAttempts().size() - 1
-            );
-            // delete probably will try to remove it from playerPerformance
-            this.goalAttemptService.delete(goalAttempt);
-        }
+        deleteRelatedGoalAttempts(playerPerformance);
 
         // delete player performance
         playerPerformanceRepository.delete(playerPerformance);
@@ -142,8 +130,10 @@ public class PlayerPerformanceServiceImpl implements PlayerPerformanceService {
     }
 
     /**
-     * fills player performance with goal attempts
-     * and penalty shots
+     * loads & fills player performance with:
+     * goal attempts
+     * penalty shots
+     * position
      *
      * @param playerPerformance
      */
@@ -152,40 +142,25 @@ public class PlayerPerformanceServiceImpl implements PlayerPerformanceService {
         long playerPerformanceId = playerPerformance.getId();
 
         // add goal attempts
-        List<GoalAttempt> goalAttemptList = this.goalAttemptService
-                .findByRelatedPerformanceId(playerPerformanceId);
-
-        for (GoalAttempt goalAttempt : goalAttemptList) {
-            // make reference in goal attempt point to correct object
-            if (goalAttempt.getDefenderPerformance().getId()
-                    .equals(playerPerformanceId)) {
-                goalAttempt.setDefenderPerformance(playerPerformance);
-            } else if (goalAttempt.getAttackerPerformance().getId()
-                    .equals(playerPerformanceId)) {
-                goalAttempt.setAttackerPerformance(playerPerformance);
-            }
-
-            // add goal attempt
-            playerPerformance.addGoalAttempt(goalAttempt);
-        }
+        this.goalAttemptService
+                .findByDefenderPerformanceId(playerPerformanceId)
+                .forEach(playerPerformance::addGoalAttemptAsDefender);
+        this.goalAttemptService
+                .findByAttackerPerformanceId(playerPerformanceId)
+                .forEach(playerPerformance::addGoalAttemptAsAttacker);
 
         // add penalty shots
-        List<PenaltyShot> penaltyShotList = this.penaltyShootService
-                .findByRelatedPerformanceId(playerPerformanceId);
+        this.penaltyShootService
+                .findByGoalkeeperPerformanceId(playerPerformanceId)
+                .forEach(playerPerformance::addPenaltyShotAsGoalkeeper);
+        this.penaltyShootService
+                .findByShooterPerformanceId(playerPerformanceId)
+                .forEach(playerPerformance::addPenaltyShotAsShooter);
 
-        for (PenaltyShot penaltyShot : penaltyShotList) {
-            // make reference in penalty shot point to correct object
-            if (penaltyShot.getGoalkeeperPerformance().getId()
-                    .equals(playerPerformanceId)) {
-                penaltyShot.setGoalkeeperPerformance(playerPerformance);
-            } else if (penaltyShot.getShooterPerformance().getId()
-                    .equals(playerPerformanceId)) {
-                penaltyShot.setShooterPerformance(playerPerformance);
-            }
-            // add penalty shot
-            playerPerformance.addPenaltyShot(penaltyShot);
-        }
-
+        // load position
+        Position fullyLoadedPosition = this.positionService
+                .findById(playerPerformance.getPosition().getId()).get();
+        playerPerformance.setPosition(fullyLoadedPosition);
     }
 
     /**
@@ -204,37 +179,161 @@ public class PlayerPerformanceServiceImpl implements PlayerPerformanceService {
     }
 
     /**
-     * creates penalty shot if it doesn't exist
+     * creates penalty shots if they don't exist
      * otherwise update it
      *
-     * @param penaltyShotsList
+     * @param playerPerformance
      */
-    private void createOrUpdatePenaltyShots(List<PenaltyShot> penaltyShotsList) {
+    private void createOrUpdatePenaltyShots(PlayerPerformance playerPerformance) {
         // TODO improve this so that it updates only if there is a need
-        for (PenaltyShot penaltyShot : penaltyShotsList) {
+        // handle shoots as goalkeeper
+        for (PenaltyShot penaltyShot : playerPerformance.getPenaltyShotsAsGoalkeeper()) {
+            // find corresponding shooter performance
+            PlayerPerformance shooterPerformance = getShooterPerformance(playerPerformance, penaltyShot);
+
             if (penaltyShotInRepository(penaltyShot)) {
-                this.penaltyShootService.update(penaltyShot);
+                this.penaltyShootService.update(penaltyShot, playerPerformance.getId(), shooterPerformance.getId());
             } else {
-                this.penaltyShootService.create(penaltyShot);
+                this.penaltyShootService.create(penaltyShot, playerPerformance.getId(), shooterPerformance.getId());
+            }
+        }
+        // handle shoots as shooter
+        for (PenaltyShot penaltyShot : playerPerformance.getPenaltyShotsAsShooter()) {
+            // find corresponding goalkeeper performance
+            PlayerPerformance goalkeeperPerformance = getGoalkeeperPerformance(playerPerformance, penaltyShot);
+
+            if (penaltyShotInRepository(penaltyShot)) {
+                this.penaltyShootService.update(penaltyShot, goalkeeperPerformance.getId(), playerPerformance.getId());
+            } else {
+                this.penaltyShootService.create(penaltyShot, goalkeeperPerformance.getId(), playerPerformance.getId());
             }
         }
     }
 
     /**
-     * creates goal attempt if it doesn't exist
+     * creates goal attempts if they don't exist
      * otherwise update it
      *
-     * @param goalAttemptsList
+     * @param playerPerformance
      */
-    private void createOrUpdateGoalAttempt(List<GoalAttempt> goalAttemptsList) {
+    private void createOrUpdateGoalAttempt(PlayerPerformance playerPerformance) {
         // TODO improve this so that it updates only if there is a need
-        for (GoalAttempt goalAttempt : goalAttemptsList) {
+        // handle goal attempts as defender
+        for (GoalAttempt goalAttempt : playerPerformance.getGoalAttemptsAsDefender()) {
+            // find corresponding attacker performance
+            PlayerPerformance attackerPerformance = getAttackerPerformance(playerPerformance, goalAttempt);
+
             if (goalAttemptInRepository(goalAttempt)) {
-                this.goalAttemptService.update(goalAttempt);
+                this.goalAttemptService.update(goalAttempt, playerPerformance.getId(), attackerPerformance.getId());
             } else {
-                this.goalAttemptService.create(goalAttempt);
+                this.goalAttemptService.create(goalAttempt, playerPerformance.getId(), attackerPerformance.getId());
             }
         }
+        // handle goal attempts as attacker
+        for (GoalAttempt goalAttempt : playerPerformance.getGoalAttemptsAsAttacker()) {
+            // find corresponding defender performance
+            PlayerPerformance defenderPerformance = getDefenderPerformance(playerPerformance, goalAttempt);
+
+            if (goalAttemptInRepository(goalAttempt)) {
+                this.goalAttemptService.update(goalAttempt, defenderPerformance.getId(), playerPerformance.getId());
+            } else {
+                this.goalAttemptService.create(goalAttempt, defenderPerformance.getId(), playerPerformance.getId());
+            }
+        }
+    }
+
+
+    private void deleteRelatedPenaltyShots(PlayerPerformance playerPerformance) {
+        // handle shoots as goalkeeper
+        for (PenaltyShot penaltyShot : playerPerformance.getPenaltyShotsAsGoalkeeper()) {
+            playerPerformance.removePenaltyShot(penaltyShot);
+            getShooterPerformance(playerPerformance, penaltyShot)
+                    .removePenaltyShot(penaltyShot);
+            this.penaltyShootService.delete(penaltyShot);
+        }
+        // handle shoots as shooter
+        for (PenaltyShot penaltyShot : playerPerformance.getPenaltyShotsAsShooter()) {
+            getGoalkeeperPerformance(playerPerformance, penaltyShot)
+                    .removePenaltyShot(penaltyShot);
+            playerPerformance.removePenaltyShot(penaltyShot);
+            this.penaltyShootService.delete(penaltyShot);
+        }
+    }
+
+
+    private void deleteRelatedGoalAttempts(PlayerPerformance playerPerformance) {
+        // handle goal attempts as defender
+        for (GoalAttempt goalAttempt : playerPerformance.getGoalAttemptsAsDefender()) {
+            playerPerformance.removeGoalAttempt(goalAttempt);
+            getAttackerPerformance(playerPerformance, goalAttempt)
+                    .removeGoalAttempt(goalAttempt);
+            this.goalAttemptService.delete(goalAttempt);
+
+        }
+        // handle goal attempts as attacker
+        for (GoalAttempt goalAttempt : playerPerformance.getGoalAttemptsAsAttacker()) {
+            getDefenderPerformance(playerPerformance, goalAttempt)
+                    .removeGoalAttempt(goalAttempt);
+            playerPerformance.removeGoalAttempt(goalAttempt);
+            this.goalAttemptService.delete(goalAttempt);
+        }
+    }
+
+
+    /**
+     * get shooter performance for penalty shot, throws Runtime Exception on failure
+     *
+     * @param playerPerformance
+     * @param penaltyShot
+     * @return
+     */
+    private static PlayerPerformance getShooterPerformance(PlayerPerformance playerPerformance, PenaltyShot penaltyShot) {
+        final String exceptionMessage =
+                "Cannot find shooter for penalty shot with id: " + penaltyShot.getId();
+        return playerPerformance.getGame().findShooterPerformance(penaltyShot)
+                .orElseThrow(() -> new RuntimeException(exceptionMessage));
+    }
+
+    /**
+     * get goalkeeper performance for penalty shot, throws Runtime Exception on failure
+     *
+     * @param playerPerformance
+     * @param penaltyShot
+     * @return
+     */
+    private static PlayerPerformance getGoalkeeperPerformance(PlayerPerformance playerPerformance, PenaltyShot penaltyShot) {
+        final String exceptionMessage =
+                "Cannot find goalkeeper for penalty shot with id: " + penaltyShot.getId();
+        return playerPerformance.getGame().findGoalkeeperPerformance(penaltyShot)
+                .orElseThrow(() -> new RuntimeException(exceptionMessage));
+    }
+
+    /**
+     * get attacker performance for goal attempt, throws Runtime Exception on failure
+     *
+     * @param playerPerformance
+     * @param goalAttempt
+     * @return
+     */
+    private static PlayerPerformance getAttackerPerformance(PlayerPerformance playerPerformance, GoalAttempt goalAttempt) {
+        final String exceptionMessage =
+                "Cannot find attacker for goal attempt with id: " + goalAttempt.getId();
+        return playerPerformance.getGame().findAttackerPerformance(goalAttempt)
+                .orElseThrow(() -> new RuntimeException(exceptionMessage));
+    }
+
+    /**
+     * get defender performance for goal attempt, throws Runtime Exception on failure
+     *
+     * @param playerPerformance
+     * @param goalAttempt
+     * @return
+     */
+    private static PlayerPerformance getDefenderPerformance(PlayerPerformance playerPerformance, GoalAttempt goalAttempt) {
+        final String exceptionMessage =
+                "cannot find defender for goal attempt with id: " + goalAttempt.getId();
+        return playerPerformance.getGame().findDefenderPerformance(goalAttempt)
+                .orElseThrow(() -> new RuntimeException(exceptionMessage));
     }
 
     private boolean positionInRepository(Position position) {

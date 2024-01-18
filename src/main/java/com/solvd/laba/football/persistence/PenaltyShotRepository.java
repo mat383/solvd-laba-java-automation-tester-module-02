@@ -3,8 +3,19 @@ package com.solvd.laba.football.persistence;
 import com.solvd.laba.football.domain.PenaltyShot;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface PenaltyShotRepository extends IRepository<PenaltyShot> {
+public interface PenaltyShotRepository {
+
+    void create(PenaltyShot penaltyShot, long goalkeeperPerformanceId, long shooterPerformanceId);
+
+    void update(PenaltyShot penaltyShot, long goalkeeperPerformanceId, long shooterPerformanceId);
+
+    void delete(PenaltyShot penaltyShot);
+
+    Optional<PenaltyShot> findById(long id);
+
+    List<PenaltyShot> findAll();
 
     List<PenaltyShot> findByGoalkeeperPerformanceId(long id);
 

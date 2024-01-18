@@ -10,7 +10,9 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Team implements Identifiable {
+    @EqualsAndHashCode.Include
     private Long id;
     @NonNull
     @Setter

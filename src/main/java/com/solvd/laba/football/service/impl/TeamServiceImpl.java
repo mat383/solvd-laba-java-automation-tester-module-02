@@ -21,8 +21,11 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public void create(Team team, long clubId, Long leagueId, Integer leaguePosition) {
-        if (leaguePosition != null && leagueId == null) {
-            throw new IllegalArgumentException("If league position is not null, then league id cannot be null");
+        // TODO this should be that either two are null or two have value - fix it
+        if ((leaguePosition != null && leagueId == null)
+                || (leaguePosition == null && leagueId != null)) {
+            throw new IllegalArgumentException(
+                    "League position and league id both have to be either null or have some  value.");
         }
         // TODO add support for failure
         this.teamRepository.create(team, clubId, leagueId, leaguePosition);
@@ -37,8 +40,10 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public void update(Team team, long clubId, Long leagueId, Integer leaguePosition) {
-        if (leaguePosition != null && leagueId == null) {
-            throw new IllegalArgumentException("If league position is not null, then league id cannot be null");
+        if ((leaguePosition != null && leagueId == null)
+                || (leaguePosition == null && leagueId != null)) {
+            throw new IllegalArgumentException(
+                    "League position and league id both have to be either null or have some  value.");
         }
         // TODO add support for failure
         this.teamRepository.update(team, clubId, leagueId, leaguePosition);

@@ -1,12 +1,13 @@
 package com.solvd.laba.football.persistence.impl;
 
 import com.solvd.laba.football.domain.GoalAttempt;
-import com.solvd.laba.football.domain.PlayerPerformance;
 import com.solvd.laba.football.domain.ShootOutcome;
+import com.solvd.laba.football.domain.interfaces.Identifiable;
 import com.solvd.laba.football.persistence.GoalAttemptRepository;
 import com.solvd.laba.football.persistence.impl.util.MySQLConnectionPool;
 import com.solvd.laba.football.persistence.impl.util.MySQLRepositoryHelper;
 import com.solvd.laba.football.persistence.impl.util.MySQLTable;
+import lombok.*;
 
 import java.sql.SQLException;
 import java.sql.Time;
@@ -16,49 +17,65 @@ import java.util.Optional;
 public class GoalAttemptRepositoryMySQL implements GoalAttemptRepository {
     private static final MySQLConnectionPool CONNECTION_POOL = MySQLConnectionPool.getInstance();
 
-    private final MySQLTable<GoalAttempt> goalAttemptsTable = createGoalAttemptsTableDescription();
+    private final MySQLTable<GoalAttemptTransport> goalAttemptsTable = createGoalAttemptsTableDescription();
 
 
     @Override
-    public void create(GoalAttempt goalAttempt) {
-        this.goalAttemptsTable.insertRow(goalAttempt);
+    public void create(GoalAttempt goalAttempt, long defenderPerformanceId, long attackerPerformanceId) {
+        GoalAttemptTransport goalAttemptTransport =
+                GoalAttemptTransport.of(goalAttempt, defenderPerformanceId, attackerPerformanceId);
+
+        this.goalAttemptsTable.insertRow(goalAttemptTransport);
+        goalAttempt.setId(goalAttemptTransport.getId());
     }
 
     @Override
-    public void update(GoalAttempt goalAttempt) {
-        this.goalAttemptsTable.updateRow(goalAttempt);
+    public void update(GoalAttempt goalAttempt, long defenderPerformanceId, long attackerPerformanceId) {
+        this.goalAttemptsTable.updateRow(
+                GoalAttemptTransport.of(goalAttempt, defenderPerformanceId, attackerPerformanceId));
     }
 
     @Override
     public void delete(GoalAttempt goalAttempt) {
-        this.goalAttemptsTable.deleteRow(goalAttempt);
+        this.goalAttemptsTable.deleteRow(
+                GoalAttemptTransport.of(goalAttempt, null, null));
     }
 
     @Override
     public Optional<GoalAttempt> findById(long id) {
-        return this.goalAttemptsTable.findRowById(id);
+        return this.goalAttemptsTable.findRowById(id)
+                .map(GoalAttemptTransport::toGoalAttempt);
     }
 
     @Override
     public List<GoalAttempt> findAll() {
-        return this.goalAttemptsTable.findAllRows();
+        return this.goalAttemptsTable.findAllRows().stream()
+                .map(GoalAttemptTransport::toGoalAttempt)
+                .toList();
     }
 
     @Override
     public List<GoalAttempt> findByDefenderPerformanceId(long id) {
-        return this.goalAttemptsTable.findRowsByLongColumn("defender_performance_id", id);
+        return this.goalAttemptsTable.findRowsByLongColumn("defender_performance_id", id)
+                .stream()
+                .map(GoalAttemptTransport::toGoalAttempt)
+                .toList();
+
     }
 
     @Override
     public List<GoalAttempt> findByAttackerPerformanceId(long id) {
-        return this.goalAttemptsTable.findRowsByLongColumn("attacker_performance_id", id);
+        return this.goalAttemptsTable.findRowsByLongColumn("attacker_performance_id", id)
+                .stream()
+                .map(GoalAttemptTransport::toGoalAttempt)
+                .toList();
     }
 
     @Override
     public List<GoalAttempt> findByRelatedPerformanceId(long id) {
         try {
             return MySQLRepositoryHelper.executeQuery(
-                    "SELECT id, game_time, defender_performance_id, attacker_performance_id, outcome_id " +
+                    "SELECT id, game_time, outcome_id " +
                             "FROM goal_attempts WHERE defender_performance_id = ? OR attacker_performance_id = ?;",
                     preparedStatement -> {
                         preparedStatement.setLong(1, id);
@@ -66,14 +83,9 @@ public class GoalAttemptRepositoryMySQL implements GoalAttemptRepository {
                     },
                     resultSet -> {
                         // build object from result set
-                        PlayerPerformance defenderPerformance = new PlayerPerformance();
-                        PlayerPerformance attackerPerformance = new PlayerPerformance();
-                        defenderPerformance.setId(resultSet.getLong("defender_performance_id"));
-                        attackerPerformance.setId(resultSet.getLong("attacker_performance_id"));
-
-                        return new GoalAttempt(resultSet.getLong("id"),
+                        return new GoalAttempt(
+                                resultSet.getLong("id"),
                                 new ShootOutcome(resultSet.getLong("outcome_id"), null),
-                                defenderPerformance, attackerPerformance,
                                 resultSet.getTime("game_time").toLocalTime());
                     },
                     CONNECTION_POOL);
@@ -83,63 +95,99 @@ public class GoalAttemptRepositoryMySQL implements GoalAttemptRepository {
     }
 
 
-    private static MySQLTable<GoalAttempt> createGoalAttemptsTableDescription() {
+    private static MySQLTable<GoalAttemptTransport> createGoalAttemptsTableDescription() {
         return new MySQLTable<>(
                 "goal_attempts",
                 "id",
                 createGoalAttemptColumnsDescription(),
-                () -> {
-                    return new GoalAttempt(null, new ShootOutcome(), new PlayerPerformance(), new PlayerPerformance(), null);
-                }
+                GoalAttemptTransport::new
         );
     }
 
-    private static List<MySQLTable.Column<GoalAttempt>> createGoalAttemptColumnsDescription() {
+    private static List<MySQLTable.Column<GoalAttemptTransport>> createGoalAttemptColumnsDescription() {
         return List.of(
                 new MySQLTable.Column<>(
                         "game_time",
                         // setting prepared statement
-                        (preparedStatement, parameterIndex, goalAttempt) -> {
-                            preparedStatement.setTime(parameterIndex, Time.valueOf(goalAttempt.getGameTime()));
+                        (preparedStatement, parameterIndex, goalAttemptTransport) -> {
+                            preparedStatement.setTime(parameterIndex, goalAttemptTransport.getGameTime());
                         },
                         // saving results
-                        (resultSet, columnLabel, goalAttempt) -> {
-                            goalAttempt.setGameTime(resultSet.getTime(columnLabel).toLocalTime());
+                        (resultSet, columnLabel, goalAttemptTransport) -> {
+                            goalAttemptTransport.setGameTime(resultSet.getTime(columnLabel));
                         }
                 ),
                 new MySQLTable.Column<>(
                         "defender_performance_id",
                         // setting prepared statement
-                        (preparedStatement, parameterIndex, goalAttempt) -> {
-                            preparedStatement.setLong(parameterIndex, goalAttempt.getDefenderPerformance().getId());
+                        (preparedStatement, parameterIndex, goalAttemptTransport) -> {
+                            preparedStatement.setLong(parameterIndex, goalAttemptTransport.getDefenderPerformanceId());
                         },
                         // saving results
-                        (resultSet, columnLabel, goalAttempt) -> {
-                            goalAttempt.getDefenderPerformance().setId(resultSet.getLong(columnLabel));
+                        (resultSet, columnLabel, goalAttemptTransport) -> {
+                            goalAttemptTransport.setDefenderPerformanceId(resultSet.getLong(columnLabel));
                         }
                 ),
                 new MySQLTable.Column<>(
                         "attacker_performance_id",
                         // setting prepared statement
-                        (preparedStatement, parameterIndex, goalAttempt) -> {
-                            preparedStatement.setLong(parameterIndex, goalAttempt.getAttackerPerformance().getId());
+                        (preparedStatement, parameterIndex, goalAttemptTransport) -> {
+                            preparedStatement.setLong(parameterIndex, goalAttemptTransport.getAttackerPerformanceId());
                         },
                         // saving results
-                        (resultSet, columnLabel, goalAttempt) -> {
-                            goalAttempt.getAttackerPerformance().setId(resultSet.getLong(columnLabel));
+                        (resultSet, columnLabel, goalAttemptTransport) -> {
+                            goalAttemptTransport.setAttackerPerformanceId(resultSet.getLong(columnLabel));
                         }
                 ),
                 new MySQLTable.Column<>(
                         "outcome_id",
                         // setting prepared statement
-                        (preparedStatement, parameterIndex, goalAttempt) -> {
-                            preparedStatement.setLong(parameterIndex, goalAttempt.getOutcome().getId());
+                        (preparedStatement, parameterIndex, goalAttemptTransport) -> {
+                            preparedStatement.setLong(parameterIndex, goalAttemptTransport.getOutcomeId());
                         },
                         // saving results
-                        (resultSet, columnLabel, goalAttempt) -> {
-                            goalAttempt.getOutcome().setId(resultSet.getLong(columnLabel));
+                        (resultSet, columnLabel, goalAttemptTransport) -> {
+                            goalAttemptTransport.setOutcomeId(resultSet.getLong(columnLabel));
                         }
                 )
         );
+    }
+
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    private static class GoalAttemptTransport implements Identifiable {
+        private Long id;
+        private Long outcomeId;
+        private Time gameTime;
+        private Long defenderPerformanceId;
+        private Long attackerPerformanceId;
+
+        @Override
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        public static GoalAttemptTransport of(GoalAttempt goalAttempt, Long defenderPerformanceId, Long attackerPerformanceId) {
+            Time sqlTime = Time.valueOf(goalAttempt.getGameTime());
+            return GoalAttemptTransport.builder()
+                    .id(goalAttempt.getId())
+                    .outcomeId(goalAttempt.getOutcome().getId())
+                    .gameTime(sqlTime)
+                    .defenderPerformanceId(defenderPerformanceId)
+                    .attackerPerformanceId(attackerPerformanceId)
+                    .build();
+        }
+
+        public GoalAttempt toGoalAttempt() {
+            return new GoalAttempt(
+                    this.id,
+                    new ShootOutcome(this.outcomeId, null),
+                    this.gameTime.toLocalTime()
+            );
+        }
     }
 }

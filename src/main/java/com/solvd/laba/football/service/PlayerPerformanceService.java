@@ -6,10 +6,17 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PlayerPerformanceService {
-    void create(PlayerPerformance playerPerformance, long playerId);
+    void create(PlayerPerformance playerPerformance);
 
-    void update(PlayerPerformance playerPerformance, long playerId);
+    void update(PlayerPerformance playerPerformance);
 
+    /**
+     * this will affect other player performances from same game
+     * that share goal attempt or penalty shot
+     * (it will delete said goal attempt or penalty shot from them)
+     *
+     * @param playerPerformance
+     */
     void delete(PlayerPerformance playerPerformance);
 
     Optional<PlayerPerformance> findById(long id);

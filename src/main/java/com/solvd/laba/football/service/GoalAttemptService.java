@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GoalAttemptService {
-    void create(GoalAttempt goalAttempt);
+    void create(GoalAttempt goalAttempt, long defenderPerformanceId, long attackerPerformanceId);
 
-    void update(GoalAttempt goalAttempt);
+    void update(GoalAttempt goalAttempt, long defenderPerformanceId, long attackerPerformanceId);
 
     void delete(GoalAttempt goalAttempt);
 

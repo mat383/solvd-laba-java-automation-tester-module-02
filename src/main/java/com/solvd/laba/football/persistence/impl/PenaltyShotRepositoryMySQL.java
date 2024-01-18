@@ -1,12 +1,13 @@
 package com.solvd.laba.football.persistence.impl;
 
 import com.solvd.laba.football.domain.PenaltyShot;
-import com.solvd.laba.football.domain.PlayerPerformance;
 import com.solvd.laba.football.domain.ShootOutcome;
+import com.solvd.laba.football.domain.interfaces.Identifiable;
 import com.solvd.laba.football.persistence.PenaltyShotRepository;
 import com.solvd.laba.football.persistence.impl.util.MySQLConnectionPool;
 import com.solvd.laba.football.persistence.impl.util.MySQLRepositoryHelper;
 import com.solvd.laba.football.persistence.impl.util.MySQLTable;
+import lombok.*;
 
 import java.sql.SQLException;
 import java.sql.Time;
@@ -16,49 +17,64 @@ import java.util.Optional;
 public class PenaltyShotRepositoryMySQL implements PenaltyShotRepository {
     private static final MySQLConnectionPool CONNECTION_POOL = MySQLConnectionPool.getInstance();
 
-    private final MySQLTable<PenaltyShot> penaltyShotsTable = createPenaltyShotsTableDescription();
+    private final MySQLTable<PenaltyShotTransport> penaltyShotsTable = createPenaltyShotsTableDescription();
 
 
     @Override
-    public void create(PenaltyShot penaltyShot) {
-        this.penaltyShotsTable.insertRow(penaltyShot);
+    public void create(PenaltyShot penaltyShot, long goalkeeperPerformanceId, long shooterPerformanceId) {
+        PenaltyShotTransport penaltyShotTransport =
+                PenaltyShotTransport.of(penaltyShot, goalkeeperPerformanceId, shooterPerformanceId);
+
+        this.penaltyShotsTable.insertRow(penaltyShotTransport);
+        penaltyShot.setId(penaltyShotTransport.getId());
     }
 
     @Override
-    public void update(PenaltyShot penaltyShot) {
-        this.penaltyShotsTable.updateRow(penaltyShot);
+    public void update(PenaltyShot penaltyShot, long goalkeeperPerformanceId, long shooterPerformanceId) {
+        this.penaltyShotsTable.updateRow(
+                PenaltyShotTransport.of(penaltyShot, goalkeeperPerformanceId, shooterPerformanceId));
     }
 
     @Override
     public void delete(PenaltyShot penaltyShot) {
-        this.penaltyShotsTable.deleteRow(penaltyShot);
+        this.penaltyShotsTable.deleteRow(
+                PenaltyShotTransport.of(penaltyShot, null, null));
     }
 
     @Override
     public Optional<PenaltyShot> findById(long id) {
-        return this.penaltyShotsTable.findRowById(id);
+        return this.penaltyShotsTable.findRowById(id)
+                .map(PenaltyShotTransport::toGoalAttempt);
     }
 
     @Override
     public List<PenaltyShot> findAll() {
-        return this.penaltyShotsTable.findAllRows();
+        return this.penaltyShotsTable.findAllRows().stream()
+                .map(PenaltyShotTransport::toGoalAttempt)
+                .toList();
     }
 
     @Override
     public List<PenaltyShot> findByGoalkeeperPerformanceId(long id) {
-        return this.penaltyShotsTable.findRowsByLongColumn("defender_performance_id", id);
+        return this.penaltyShotsTable.findRowsByLongColumn("defender_performance_id", id)
+                .stream()
+                .map(PenaltyShotTransport::toGoalAttempt)
+                .toList();
     }
 
     @Override
     public List<PenaltyShot> findByShooterPerformanceId(long id) {
-        return this.penaltyShotsTable.findRowsByLongColumn("attacker_performance_id", id);
+        return this.penaltyShotsTable.findRowsByLongColumn("attacker_performance_id", id)
+                .stream()
+                .map(PenaltyShotTransport::toGoalAttempt)
+                .toList();
     }
 
     @Override
     public List<PenaltyShot> findByRelatedPerformanceId(long id) {
         try {
             return MySQLRepositoryHelper.executeQuery(
-                    "SELECT id, goalkeeper_performance_id, shooter_performance_id, outcome_id, game_time " +
+                    "SELECT id, outcome_id, game_time " +
                             "FROM penalty_shots WHERE goalkeeper_performance_id = ? OR shooter_performance_id = ?;",
                     preparedStatement -> {
                         preparedStatement.setLong(1, id);
@@ -66,14 +82,9 @@ public class PenaltyShotRepositoryMySQL implements PenaltyShotRepository {
                     },
                     resultSet -> {
                         // build object from result set
-                        PlayerPerformance goalkeeperPerformance = new PlayerPerformance();
-                        PlayerPerformance shooterPerformance = new PlayerPerformance();
-                        goalkeeperPerformance.setId(resultSet.getLong("goalkeeper_performance_id"));
-                        shooterPerformance.setId(resultSet.getLong("shooter_performance_id"));
-
-                        return new PenaltyShot(resultSet.getLong("id"),
+                        return new PenaltyShot(
+                                resultSet.getLong("id"),
                                 new ShootOutcome(resultSet.getLong("outcome_id"), null),
-                                goalkeeperPerformance, shooterPerformance,
                                 resultSet.getTime("game_time").toLocalTime());
                     },
                     CONNECTION_POOL);
@@ -83,63 +94,99 @@ public class PenaltyShotRepositoryMySQL implements PenaltyShotRepository {
     }
 
 
-    private static MySQLTable<PenaltyShot> createPenaltyShotsTableDescription() {
+    private static MySQLTable<PenaltyShotTransport> createPenaltyShotsTableDescription() {
         return new MySQLTable<>(
                 "penalty_shots",
                 "id",
                 createGoalAttemptColumnsDescription(),
-                () -> {
-                    return new PenaltyShot(null, new ShootOutcome(), new PlayerPerformance(), new PlayerPerformance(), null);
-                }
+                PenaltyShotTransport::new
         );
     }
 
-    private static List<MySQLTable.Column<PenaltyShot>> createGoalAttemptColumnsDescription() {
+    private static List<MySQLTable.Column<PenaltyShotTransport>> createGoalAttemptColumnsDescription() {
         return List.of(
                 new MySQLTable.Column<>(
                         "goalkeeper_performance_id",
                         // setting prepared statement
                         (preparedStatement, parameterIndex, penaltyShot) -> {
-                            preparedStatement.setLong(parameterIndex, penaltyShot.getGoalkeeperPerformance().getId());
+                            preparedStatement.setLong(parameterIndex, penaltyShot.getGoalkeeperPerformanceId());
                         },
                         // saving results
                         (resultSet, columnLabel, penaltyShot) -> {
-                            penaltyShot.getGoalkeeperPerformance().setId(resultSet.getLong(columnLabel));
+                            penaltyShot.setGoalkeeperPerformanceId(resultSet.getLong(columnLabel));
                         }
                 ),
                 new MySQLTable.Column<>(
                         "attacker_performance_id",
                         // setting prepared statement
                         (preparedStatement, parameterIndex, penaltyShot) -> {
-                            preparedStatement.setLong(parameterIndex, penaltyShot.getShooterPerformance().getId());
+                            preparedStatement.setLong(parameterIndex, penaltyShot.getShooterPerformanceId());
                         },
                         // saving results
                         (resultSet, columnLabel, penaltyShot) -> {
-                            penaltyShot.getShooterPerformance().setId(resultSet.getLong(columnLabel));
+                            penaltyShot.setShooterPerformanceId(resultSet.getLong(columnLabel));
                         }
                 ),
                 new MySQLTable.Column<>(
                         "outcome_id",
                         // setting prepared statement
                         (preparedStatement, parameterIndex, penaltyShot) -> {
-                            preparedStatement.setLong(parameterIndex, penaltyShot.getOutcome().getId());
+                            preparedStatement.setLong(parameterIndex, penaltyShot.getOutcomeId());
                         },
                         // saving results
                         (resultSet, columnLabel, penaltyShot) -> {
-                            penaltyShot.getOutcome().setId(resultSet.getLong(columnLabel));
+                            penaltyShot.setOutcomeId(resultSet.getLong(columnLabel));
                         }
                 ),
                 new MySQLTable.Column<>(
                         "game_time",
                         // setting prepared statement
                         (preparedStatement, parameterIndex, penaltyShot) -> {
-                            preparedStatement.setTime(parameterIndex, Time.valueOf(penaltyShot.getGameTime()));
+                            preparedStatement.setTime(parameterIndex, penaltyShot.getGameTime());
                         },
                         // saving results
                         (resultSet, columnLabel, penaltyShot) -> {
-                            penaltyShot.setGameTime(resultSet.getTime(columnLabel).toLocalTime());
+                            penaltyShot.setGameTime(resultSet.getTime(columnLabel));
                         }
                 )
         );
+    }
+
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    private static class PenaltyShotTransport implements Identifiable {
+        private Long id;
+        private Long outcomeId;
+        private Time gameTime;
+        private Long goalkeeperPerformanceId;
+        private Long shooterPerformanceId;
+
+        @Override
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        public static PenaltyShotTransport of(PenaltyShot penaltyShot, Long goalkeeperPerformanceId, Long shooterPerformanceId) {
+            Time sqlTime = Time.valueOf(penaltyShot.getGameTime());
+            return PenaltyShotTransport.builder()
+                    .id(penaltyShot.getId())
+                    .outcomeId(penaltyShot.getOutcome().getId())
+                    .gameTime(sqlTime)
+                    .goalkeeperPerformanceId(goalkeeperPerformanceId)
+                    .shooterPerformanceId(shooterPerformanceId)
+                    .build();
+        }
+
+        public PenaltyShot toGoalAttempt() {
+            return new PenaltyShot(
+                    this.id,
+                    new ShootOutcome(this.outcomeId, null),
+                    this.gameTime.toLocalTime()
+            );
+        }
     }
 }

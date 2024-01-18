@@ -32,12 +32,10 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public Optional<Person> findById(long id) {
         return this.personRepository.findById(id);
-        // TODO add player info and fill team
     }
 
     @Override
     public List<Person> findAll() {
         return this.personRepository.findAll();
-        // TODO add player info and fill team
     }
 }

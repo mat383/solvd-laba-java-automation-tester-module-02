@@ -14,14 +14,15 @@ public class GoalAttemptServiceImpl implements GoalAttemptService {
         this.goalAttemptRepository = goalAttemptRepository;
     }
 
+
     @Override
-    public void create(GoalAttempt goalAttempt) {
-        this.goalAttemptRepository.create(goalAttempt);
+    public void create(GoalAttempt goalAttempt, long defenderPerformanceId, long attackerPerformanceId) {
+        this.goalAttemptRepository.create(goalAttempt, defenderPerformanceId, attackerPerformanceId);
     }
 
     @Override
-    public void update(GoalAttempt goalAttempt) {
-        this.goalAttemptRepository.update(goalAttempt);
+    public void update(GoalAttempt goalAttempt, long defenderPerformanceId, long attackerPerformanceId) {
+        this.goalAttemptRepository.update(goalAttempt, defenderPerformanceId, attackerPerformanceId);
     }
 
     @Override

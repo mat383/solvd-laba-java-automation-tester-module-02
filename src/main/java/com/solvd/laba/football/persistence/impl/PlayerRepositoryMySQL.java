@@ -2,6 +2,7 @@ package com.solvd.laba.football.persistence.impl;
 
 import com.solvd.laba.football.domain.Person;
 import com.solvd.laba.football.domain.Player;
+import com.solvd.laba.football.domain.Position;
 import com.solvd.laba.football.persistence.PlayerRepository;
 import com.solvd.laba.football.persistence.impl.util.MySQLConnectionPool;
 import com.solvd.laba.football.persistence.impl.util.MySQLRepositoryHelper;
@@ -29,8 +30,7 @@ public class PlayerRepositoryMySQL implements PlayerRepository {
                     "INSERT INTO players(person_id, preffered_position_id, team_id) VALUES (?, ?, ?);",
                     preparedStatement -> {
                         preparedStatement.setLong(1, player.getPerson().getId());
-                        // FIXME FIX THIS -------- TEMPORARY CODE, NEEDS TO BE REPLACED WITH ACTUAL POSITION
-                        preparedStatement.setLong(2, 1);
+                        preparedStatement.setLong(2, player.getPreferredPosition().getId());
                         preparedStatement.setLong(3, teamId);
                     },
                     CONNECTION_POOL);
@@ -52,8 +52,7 @@ public class PlayerRepositoryMySQL implements PlayerRepository {
                     "UPDATE players SET person_id=?, preffered_position_id=?, team_id=? WHERE id=?;",
                     preparedStatement -> {
                         preparedStatement.setLong(1, player.getPerson().getId());
-                        // FIXME FIX THIS -------- TEMPORARY CODE, NEEDS TO BE REPLACED WITH ACTUAL POSITION
-                        preparedStatement.setLong(2, 1);
+                        preparedStatement.setLong(2, player.getPreferredPosition().getId());
                         preparedStatement.setLong(3, teamId);
                         preparedStatement.setLong(4, player.getId());
                     },
@@ -85,7 +84,7 @@ public class PlayerRepositoryMySQL implements PlayerRepository {
         Optional<Player> player = Optional.empty();
         try {
             List<Player> results = MySQLRepositoryHelper.executeQuery(
-                    "SELECT id, person_id FROM players WHERE id=?;",
+                    "SELECT id, person_id, preffered_position FROM players WHERE id=?;",
                     preparedStatement -> preparedStatement.setLong(1, id),
                     PlayerRepositoryMySQL::createPlayerFromResultSet,
                     CONNECTION_POOL);
@@ -104,8 +103,9 @@ public class PlayerRepositoryMySQL implements PlayerRepository {
     public List<Player> findAll() {
         try {
             return MySQLRepositoryHelper.executeQuery(
-                    "SELECT id, person_id FROM players;",
-                    preparedStatement -> {},
+                    "SELECT id, person_id, preffered_position FROM players;",
+                    preparedStatement -> {
+                    },
                     PlayerRepositoryMySQL::createPlayerFromResultSet,
                     CONNECTION_POOL);
         } catch (SQLException e) {
@@ -113,12 +113,11 @@ public class PlayerRepositoryMySQL implements PlayerRepository {
         }
     }
 
-
     @Override
     public List<Player> findByTeamId(long teamId) {
         try {
             return MySQLRepositoryHelper.executeQuery(
-                    "SELECT id, person_id FROM players WHERE team_id=?;",
+                    "SELECT id, person_id, preffered_position FROM players WHERE team_id=?;",
                     preparedStatement -> preparedStatement.setLong(1, teamId),
                     PlayerRepositoryMySQL::createPlayerFromResultSet,
                     CONNECTION_POOL);
@@ -127,9 +126,16 @@ public class PlayerRepositoryMySQL implements PlayerRepository {
         }
     }
 
+
     static private Player createPlayerFromResultSet(ResultSet resultSet) throws SQLException {
-        Person playerPerson = new Person(resultSet.getLong("person_id"),
-                null, null, null);
-        return new Player(resultSet.getLong("id"), playerPerson);
+        Person playerPerson = new Person();
+        playerPerson.setId(resultSet.getLong("person_id"));
+        Position preferredPosition = new Position();
+        preferredPosition.setId(resultSet.getLong("prerffered_position_id"));
+
+        return new Player(
+                resultSet.getLong("id"),
+                playerPerson,
+                preferredPosition);
     }
 }

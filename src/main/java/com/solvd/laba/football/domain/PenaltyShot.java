@@ -9,12 +9,12 @@ import java.time.LocalTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class PenaltyShot implements Identifiable {
     @Setter(AccessLevel.NONE)
+    @EqualsAndHashCode.Include
     private Long id;
     private ShootOutcome outcome;
-    private PlayerPerformance goalkeeperPerformance;
-    private PlayerPerformance shooterPerformance;
     private LocalTime gameTime;
 
 

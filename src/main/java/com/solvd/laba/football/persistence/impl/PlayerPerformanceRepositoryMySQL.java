@@ -1,9 +1,6 @@
 package com.solvd.laba.football.persistence.impl;
 
-import com.solvd.laba.football.domain.Game;
-import com.solvd.laba.football.domain.PlayerPerformance;
-import com.solvd.laba.football.domain.Position;
-import com.solvd.laba.football.domain.Team;
+import com.solvd.laba.football.domain.*;
 import com.solvd.laba.football.domain.interfaces.Identifiable;
 import com.solvd.laba.football.persistence.PlayerPerformanceRepository;
 import com.solvd.laba.football.persistence.impl.util.MySQLTable;
@@ -20,21 +17,21 @@ public class PlayerPerformanceRepositoryMySQL implements PlayerPerformanceReposi
     private final MySQLTable<PlayerPerformanceTransfer> playerPerformanceTable = createPlayerPerformanceTableDescription();
 
     @Override
-    public void create(PlayerPerformance playerPerformance, long playerId) {
-        PlayerPerformanceTransfer playerPerformanceTransfer = PlayerPerformanceTransfer.of(playerPerformance, playerId);
+    public void create(PlayerPerformance playerPerformance) {
+        PlayerPerformanceTransfer playerPerformanceTransfer = PlayerPerformanceTransfer.of(playerPerformance);
         this.playerPerformanceTable.insertRow(playerPerformanceTransfer);
         playerPerformance.setId(playerPerformanceTransfer.getId());
     }
 
     @Override
-    public void update(PlayerPerformance playerPerformance, long playerId) {
-        this.playerPerformanceTable.updateRow(PlayerPerformanceTransfer.of(playerPerformance, playerId));
+    public void update(PlayerPerformance playerPerformance) {
+        this.playerPerformanceTable.updateRow(PlayerPerformanceTransfer.of(playerPerformance));
     }
 
     @Override
     public void delete(PlayerPerformance playerPerformance) {
         this.playerPerformanceTable.deleteRow(
-                PlayerPerformanceTransfer.of(playerPerformance, null)
+                PlayerPerformanceTransfer.of(playerPerformance)
         );
     }
 
@@ -186,58 +183,62 @@ public class PlayerPerformanceRepositoryMySQL implements PlayerPerformanceReposi
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
+    @Builder
     private static class PlayerPerformanceTransfer implements Identifiable {
         @Setter(AccessLevel.NONE)
         private Long id;
         private Long playerId;
+        private Long positionId;
         private Long gameId;
+        private Long teamId;
         private Double defensivePerformance;
         private Double offensivePerformance;
         private Double cooperativePerformance;
         private LocalTime start;
         private LocalTime end;
-        private Long positionId;
-        private Long teamId;
 
         @Override
         public void setId(long id) {
             this.id = id;
         }
 
-        public static PlayerPerformanceTransfer of(PlayerPerformance playerPerformance, Long playerId) {
-            return new PlayerPerformanceTransfer(
-                    playerPerformance.getId(),
-                    playerId,
-                    playerPerformance.getGame().getId(),
-                    playerPerformance.getDefensivePerformance(),
-                    playerPerformance.getOffensivePerformance(),
-                    playerPerformance.getCooperativePerformance(),
-                    playerPerformance.getStart(),
-                    playerPerformance.getEnd(),
-                    playerPerformance.getPosition().getId(),
-                    playerPerformance.getTeam().getId()
-            );
+        public static PlayerPerformanceTransfer of(PlayerPerformance playerPerformance) {
+            return PlayerPerformanceTransfer.builder()
+                    .id(playerPerformance.getId())
+                    .playerId(playerPerformance.getPlayer().getId())
+                    .positionId(playerPerformance.getPosition().getId())
+                    .gameId(playerPerformance.getGame().getId())
+                    .teamId(playerPerformance.getTeam().getId())
+                    .defensivePerformance(playerPerformance.getDefensivePerformance())
+                    .offensivePerformance(playerPerformance.getOffensivePerformance())
+                    .cooperativePerformance(playerPerformance.getCooperativePerformance())
+                    .start(playerPerformance.getStart())
+                    .end(playerPerformance.getEnd())
+                    .build();
         }
 
         public PlayerPerformance toPlayerPerformance() {
             Game game = new Game();
             game.setId(this.gameId);
-            Position position = new Position();
-            position.setId(this.positionId);
             Team team = new Team();
             team.setId(this.teamId);
+            Player player = new Player();
+            player.setId(this.playerId);
+            Position position = new Position();
+            position.setId(this.positionId);
 
-            return new PlayerPerformance(
-                    this.id,
-                    game,
-                    this.defensivePerformance,
-                    this.offensivePerformance,
-                    this.cooperativePerformance,
-                    this.start,
-                    this.end,
-                    position,
-                    team
-            );
+            return PlayerPerformance.builder()
+                    .id(this.id)
+                    .game(game)
+                    .team(team)
+                    .player(player)
+                    .position(position)
+                    .defensivePerformance(this.defensivePerformance)
+                    .offensivePerformance(this.offensivePerformance)
+                    .cooperativePerformance(this.cooperativePerformance)
+                    .start(this.start)
+                    .end(this.end)
+                    .build();
         }
     }
 }
