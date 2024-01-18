@@ -244,37 +244,16 @@ public class PlayerPerformanceServiceImpl implements PlayerPerformanceService {
 
 
     private void deleteRelatedPenaltyShots(PlayerPerformance playerPerformance) {
-        // handle shoots as goalkeeper
-        for (PenaltyShot penaltyShot : playerPerformance.getPenaltyShotsAsGoalkeeper()) {
-            playerPerformance.removePenaltyShot(penaltyShot);
-            getShooterPerformance(playerPerformance, penaltyShot)
-                    .removePenaltyShot(penaltyShot);
-            this.penaltyShootService.delete(penaltyShot);
-        }
-        // handle shoots as shooter
-        for (PenaltyShot penaltyShot : playerPerformance.getPenaltyShotsAsShooter()) {
-            getGoalkeeperPerformance(playerPerformance, penaltyShot)
-                    .removePenaltyShot(penaltyShot);
-            playerPerformance.removePenaltyShot(penaltyShot);
+        // TODO figure out how to avoid double deleting penalty shots when deleting set of related player performances
+        for (PenaltyShot penaltyShot : playerPerformance.getAllPenaltyShots()) {
             this.penaltyShootService.delete(penaltyShot);
         }
     }
 
 
     private void deleteRelatedGoalAttempts(PlayerPerformance playerPerformance) {
-        // handle goal attempts as defender
-        for (GoalAttempt goalAttempt : playerPerformance.getGoalAttemptsAsDefender()) {
-            playerPerformance.removeGoalAttempt(goalAttempt);
-            getAttackerPerformance(playerPerformance, goalAttempt)
-                    .removeGoalAttempt(goalAttempt);
-            this.goalAttemptService.delete(goalAttempt);
-
-        }
-        // handle goal attempts as attacker
-        for (GoalAttempt goalAttempt : playerPerformance.getGoalAttemptsAsAttacker()) {
-            getDefenderPerformance(playerPerformance, goalAttempt)
-                    .removeGoalAttempt(goalAttempt);
-            playerPerformance.removeGoalAttempt(goalAttempt);
+        // TODO figure out how to avoid double deleting goal attempts when deleting set of related player performances
+        for (GoalAttempt goalAttempt : playerPerformance.getAllGoalAttempts()) {
             this.goalAttemptService.delete(goalAttempt);
         }
     }

@@ -51,24 +51,31 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public void delete(Player player) {
         // TODO add support for failure
+        for (PlayerPerformance playerPerformance : player.getPlayerPerformances()) {
+            this.playerPerformanceService.delete(playerPerformance);
+        }
         this.playerRepository.delete(player);
-        personService.delete(player.getPerson());
+        this.personService.delete(player.getPerson());
     }
 
     @Override
     public Optional<Player> findById(long id) {
-        return this.playerRepository.findById(id);
+        return this.playerRepository.findById(id).map(this::loadDetails);
     }
 
     @Override
     public List<Player> findAll() {
-        return this.playerRepository.findAll();
+        return this.playerRepository.findAll().stream()
+                .map(this::loadDetails)
+                .toList();
     }
 
 
     @Override
     public List<Player> findByTeamId(long id) {
-        return this.playerRepository.findByTeamId(id);
+        return this.playerRepository.findByTeamId(id).stream()
+                .map(this::loadDetails)
+                .toList();
     }
 
 
@@ -77,10 +84,20 @@ public class PlayerServiceImpl implements PlayerService {
      * player performances
      * position
      *
-     * @param player
+     * @return returns passed player object
      */
-    private void loadDetails(Player player) {
+    private Player loadDetails(Player player) {
+        // load & add player performances
+        this.playerPerformanceService
+                .findByPlayerId(player.getId())
+                .forEach(player::addPlayerPerformance);
 
+        // load & add preferred position
+        Position fullyLoadedPreferredPosition = this.positionService
+                .findById(player.getPreferredPosition().getId()).get();
+        player.setPreferredPosition(fullyLoadedPreferredPosition);
+
+        return player;
     }
 
 

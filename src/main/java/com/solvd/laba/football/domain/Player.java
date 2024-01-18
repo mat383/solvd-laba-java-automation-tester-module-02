@@ -36,12 +36,26 @@ public class Player implements Identifiable {
     }
 
 
+    /**
+     * add player performance to player and sets
+     * player as player related to player performance
+     * in player performance
+     */
     public void addPlayerPerformance(PlayerPerformance playerPerformance) {
         this.playerPerformances.add(playerPerformance);
+        playerPerformance.setPlayer(this);
     }
 
+    /**
+     * removes player performance from player and
+     * on successful removal (that is if player had
+     * given player performance) resets player related
+     * to player performance (sets it as null)
+     */
     public void removePlayerPerformance(PlayerPerformance playerPerformance) {
-        this.playerPerformances.remove(playerPerformance);
+        if (this.playerPerformances.remove(playerPerformance)) {
+            playerPerformance.setPlayer(null);
+        }
     }
 
     public List<PlayerPerformance> getPlayerPerformances() {

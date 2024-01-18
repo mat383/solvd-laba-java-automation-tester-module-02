@@ -51,18 +51,20 @@ public class Game implements Identifiable {
 
     /**
      * removes playerPerformance from a team he is in
-     *
-     * @param playerPerformance
+     * player performance's game is set to null
+     * on successful removal (if this game contained player performance)
      */
     public void removePlayerPerformance(@NonNull PlayerPerformance playerPerformance) {
-        this.playerPerformancesTeamA.remove(playerPerformance);
-        this.playerPerformancesTeamB.remove(playerPerformance);
+        if (this.playerPerformancesTeamA.remove(playerPerformance)
+                || this.playerPerformancesTeamB.remove(playerPerformance)) {
+            playerPerformance.setGame(null);
+        }
     }
 
     /**
      * add player performance to team, based on player performance team
      * player performance team have to mach one of the game teams and cannot be null
-     * player's game is automatically set to this game
+     * player performance's game is automatically set to this game
      *
      * @param playerPerformance
      */
