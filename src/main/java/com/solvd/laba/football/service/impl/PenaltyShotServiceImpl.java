@@ -36,6 +36,16 @@ public class PenaltyShotServiceImpl implements PenaltyShootService {
     }
 
     @Override
+    public Optional<Long> findGoalkeeperPerformanceIdByPenaltyShotId(long id) {
+        return this.penaltyShotRepository.findGoalkeeperPerformanceIdByPenaltyShotId(id);
+    }
+
+    @Override
+    public Optional<Long> findShooterPerformanceIdByPenaltyShotId(long id) {
+        return this.penaltyShotRepository.findShooterPerformanceIdByPenaltyShotId(id);
+    }
+
+    @Override
     public List<PenaltyShot> findByGoalkeeperPerformanceId(long id) {
         return this.penaltyShotRepository.findByGoalkeeperPerformanceId(id);
     }

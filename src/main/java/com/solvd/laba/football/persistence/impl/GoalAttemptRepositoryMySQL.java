@@ -48,6 +48,18 @@ public class GoalAttemptRepositoryMySQL implements GoalAttemptRepository {
     }
 
     @Override
+    public Optional<Long> findDefenderPerformanceIdByGoalAttemptId(long id) {
+        return this.goalAttemptsTable.findRowById(id)
+                .map(GoalAttemptTransport::getDefenderPerformanceId);
+    }
+
+    @Override
+    public Optional<Long> findAttackerPerformanceIdByGoalAttemptId(long id) {
+        return this.goalAttemptsTable.findRowById(id)
+                .map(GoalAttemptTransport::getAttackerPerformanceId);
+    }
+
+    @Override
     public List<GoalAttempt> findAll() {
         return this.goalAttemptsTable.findAllRows().stream()
                 .map(GoalAttemptTransport::toGoalAttempt)

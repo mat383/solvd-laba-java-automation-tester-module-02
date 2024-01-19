@@ -23,6 +23,10 @@ public interface GoalAttemptService {
      */
     Optional<GoalAttempt> findById(long id);
 
+    Optional<Long> findDefenderPerformanceIdByGoalAttemptId(long id);
+
+    Optional<Long> findAttackerPerformanceIdByGoalAttemptId(long id);
+
     /**
      * finds GoalAttempt with specified defender performance id,
      * this will return list of GoalAttempt, but PlayerPerformances

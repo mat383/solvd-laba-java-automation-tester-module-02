@@ -15,6 +15,10 @@ public interface PenaltyShotRepository {
 
     Optional<PenaltyShot> findById(long id);
 
+    Optional<Long> findGoalkeeperPerformanceIdByPenaltyShotId(long id);
+
+    Optional<Long> findShooterPerformanceIdByPenaltyShotId(long id);
+
     List<PenaltyShot> findAll();
 
     List<PenaltyShot> findByGoalkeeperPerformanceId(long id);

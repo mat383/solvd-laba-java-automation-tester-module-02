@@ -36,6 +36,16 @@ public class GoalAttemptServiceImpl implements GoalAttemptService {
     }
 
     @Override
+    public Optional<Long> findDefenderPerformanceIdByGoalAttemptId(long id) {
+        return this.goalAttemptRepository.findDefenderPerformanceIdByGoalAttemptId(id);
+    }
+
+    @Override
+    public Optional<Long> findAttackerPerformanceIdByGoalAttemptId(long id) {
+        return this.goalAttemptRepository.findAttackerPerformanceIdByGoalAttemptId(id);
+    }
+
+    @Override
     public List<GoalAttempt> findByDefenderPerformanceId(long id) {
         return this.goalAttemptRepository.findByDefenderPerformanceId(id);
     }

@@ -15,6 +15,10 @@ public interface GoalAttemptRepository {
 
     Optional<GoalAttempt> findById(long id);
 
+    Optional<Long> findDefenderPerformanceIdByGoalAttemptId(long id);
+
+    Optional<Long> findAttackerPerformanceIdByGoalAttemptId(long id);
+
     List<GoalAttempt> findAll();
 
     List<GoalAttempt> findByDefenderPerformanceId(long id);

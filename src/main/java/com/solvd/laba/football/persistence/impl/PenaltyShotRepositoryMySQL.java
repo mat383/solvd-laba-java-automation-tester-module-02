@@ -48,6 +48,18 @@ public class PenaltyShotRepositoryMySQL implements PenaltyShotRepository {
     }
 
     @Override
+    public Optional<Long> findGoalkeeperPerformanceIdByPenaltyShotId(long id) {
+        return this.penaltyShotsTable.findRowById(id)
+                .map(PenaltyShotTransport::getGoalkeeperPerformanceId);
+    }
+
+    @Override
+    public Optional<Long> findShooterPerformanceIdByPenaltyShotId(long id) {
+        return this.penaltyShotsTable.findRowById(id)
+                .map(PenaltyShotTransport::getShooterPerformanceId);
+    }
+
+    @Override
     public List<PenaltyShot> findAll() {
         return this.penaltyShotsTable.findAllRows().stream()
                 .map(PenaltyShotTransport::toGoalAttempt)

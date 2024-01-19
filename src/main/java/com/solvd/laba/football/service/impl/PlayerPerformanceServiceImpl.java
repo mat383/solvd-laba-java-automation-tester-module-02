@@ -189,23 +189,23 @@ public class PlayerPerformanceServiceImpl implements PlayerPerformanceService {
         // handle shoots as goalkeeper
         for (PenaltyShot penaltyShot : playerPerformance.getPenaltyShotsAsGoalkeeper()) {
             // find corresponding shooter performance
-            PlayerPerformance shooterPerformance = getShooterPerformance(playerPerformance, penaltyShot);
+            long shooterPerformanceId = getShooterPerformanceId(playerPerformance, penaltyShot);
 
             if (penaltyShotInRepository(penaltyShot)) {
-                this.penaltyShootService.update(penaltyShot, playerPerformance.getId(), shooterPerformance.getId());
+                this.penaltyShootService.update(penaltyShot, playerPerformance.getId(), shooterPerformanceId);
             } else {
-                this.penaltyShootService.create(penaltyShot, playerPerformance.getId(), shooterPerformance.getId());
+                this.penaltyShootService.create(penaltyShot, playerPerformance.getId(), shooterPerformanceId);
             }
         }
         // handle shoots as shooter
         for (PenaltyShot penaltyShot : playerPerformance.getPenaltyShotsAsShooter()) {
             // find corresponding goalkeeper performance
-            PlayerPerformance goalkeeperPerformance = getGoalkeeperPerformance(playerPerformance, penaltyShot);
+            long goalkeeperPerformanceId = getGoalkeeperPerformanceId(playerPerformance, penaltyShot);
 
             if (penaltyShotInRepository(penaltyShot)) {
-                this.penaltyShootService.update(penaltyShot, goalkeeperPerformance.getId(), playerPerformance.getId());
+                this.penaltyShootService.update(penaltyShot, goalkeeperPerformanceId, playerPerformance.getId());
             } else {
-                this.penaltyShootService.create(penaltyShot, goalkeeperPerformance.getId(), playerPerformance.getId());
+                this.penaltyShootService.create(penaltyShot, goalkeeperPerformanceId, playerPerformance.getId());
             }
         }
     }
@@ -221,23 +221,23 @@ public class PlayerPerformanceServiceImpl implements PlayerPerformanceService {
         // handle goal attempts as defender
         for (GoalAttempt goalAttempt : playerPerformance.getGoalAttemptsAsDefender()) {
             // find corresponding attacker performance
-            PlayerPerformance attackerPerformance = getAttackerPerformance(playerPerformance, goalAttempt);
+            long attackerPerformanceId = getAttackerPerformanceId(playerPerformance, goalAttempt);
 
             if (goalAttemptInRepository(goalAttempt)) {
-                this.goalAttemptService.update(goalAttempt, playerPerformance.getId(), attackerPerformance.getId());
+                this.goalAttemptService.update(goalAttempt, playerPerformance.getId(), attackerPerformanceId);
             } else {
-                this.goalAttemptService.create(goalAttempt, playerPerformance.getId(), attackerPerformance.getId());
+                this.goalAttemptService.create(goalAttempt, playerPerformance.getId(), attackerPerformanceId);
             }
         }
         // handle goal attempts as attacker
         for (GoalAttempt goalAttempt : playerPerformance.getGoalAttemptsAsAttacker()) {
             // find corresponding defender performance
-            PlayerPerformance defenderPerformance = getDefenderPerformance(playerPerformance, goalAttempt);
+            long defenderPerformanceId = getDefenderPerformanceId(playerPerformance, goalAttempt);
 
             if (goalAttemptInRepository(goalAttempt)) {
-                this.goalAttemptService.update(goalAttempt, defenderPerformance.getId(), playerPerformance.getId());
+                this.goalAttemptService.update(goalAttempt, defenderPerformanceId, playerPerformance.getId());
             } else {
-                this.goalAttemptService.create(goalAttempt, defenderPerformance.getId(), playerPerformance.getId());
+                this.goalAttemptService.create(goalAttempt, defenderPerformanceId, playerPerformance.getId());
             }
         }
     }
@@ -260,59 +260,95 @@ public class PlayerPerformanceServiceImpl implements PlayerPerformanceService {
 
 
     /**
-     * get shooter performance for penalty shot, throws Runtime Exception on failure
-     *
-     * @param playerPerformance
-     * @param penaltyShot
-     * @return
+     * get goalkeeper performance id for penalty shot, throws Runtime Exception on failure
+     * tries to get it from game from penalty shot service, but if it's null, then it uses
+     * player performance repository
      */
-    private static PlayerPerformance getShooterPerformance(PlayerPerformance playerPerformance, PenaltyShot penaltyShot) {
-        final String exceptionMessage =
-                "Cannot find shooter for penalty shot with id: " + penaltyShot.getId();
-        return playerPerformance.getGame().findShooterPerformance(penaltyShot)
-                .orElseThrow(() -> new RuntimeException(exceptionMessage));
-    }
-
-    /**
-     * get goalkeeper performance for penalty shot, throws Runtime Exception on failure
-     *
-     * @param playerPerformance
-     * @param penaltyShot
-     * @return
-     */
-    private static PlayerPerformance getGoalkeeperPerformance(PlayerPerformance playerPerformance, PenaltyShot penaltyShot) {
+    private long getGoalkeeperPerformanceId(PlayerPerformance playerPerformance, PenaltyShot penaltyShot) {
         final String exceptionMessage =
                 "Cannot find goalkeeper for penalty shot with id: " + penaltyShot.getId();
-        return playerPerformance.getGame().findGoalkeeperPerformance(penaltyShot)
-                .orElseThrow(() -> new RuntimeException(exceptionMessage));
+
+        // try to get performance id through game
+        Optional<PlayerPerformance> goalkeeperPerformance =
+                playerPerformance.getGame().findGoalkeeperPerformance(penaltyShot);
+
+        if (goalkeeperPerformance.isPresent()) {
+            return goalkeeperPerformance.get().getId();
+        } else {
+            // get performance id from player repository
+            return this.penaltyShootService
+                    .findGoalkeeperPerformanceIdByPenaltyShotId(penaltyShot.getId())
+                    .orElseThrow(() -> new RuntimeException(exceptionMessage));
+        }
     }
 
     /**
-     * get attacker performance for goal attempt, throws Runtime Exception on failure
-     *
-     * @param playerPerformance
-     * @param goalAttempt
-     * @return
+     * get shooter performance id for penalty shot, throws Runtime Exception on failure
+     * tries to get it from game from penalty shot service, but if it's null, then it uses
+     * player performance repository
      */
-    private static PlayerPerformance getAttackerPerformance(PlayerPerformance playerPerformance, GoalAttempt goalAttempt) {
+    private long getShooterPerformanceId(PlayerPerformance playerPerformance, PenaltyShot penaltyShot) {
         final String exceptionMessage =
-                "Cannot find attacker for goal attempt with id: " + goalAttempt.getId();
-        return playerPerformance.getGame().findAttackerPerformance(goalAttempt)
-                .orElseThrow(() -> new RuntimeException(exceptionMessage));
+                "Cannot find shooter for penalty shot with id: " + penaltyShot.getId();
+
+        // try to get performance id through game
+        Optional<PlayerPerformance> shooterPerformance =
+                playerPerformance.getGame().findShooterPerformance(penaltyShot);
+
+        if (shooterPerformance.isPresent()) {
+            return shooterPerformance.get().getId();
+        } else {
+            // get performance id from player repository
+            return this.penaltyShootService
+                    .findShooterPerformanceIdByPenaltyShotId(penaltyShot.getId())
+                    .orElseThrow(() -> new RuntimeException(exceptionMessage));
+        }
     }
 
     /**
-     * get defender performance for goal attempt, throws Runtime Exception on failure
-     *
-     * @param playerPerformance
-     * @param goalAttempt
-     * @return
+     * get defender performance id for goal attempt, throws Runtime Exception on failure
+     * tries to get it from game from goal attempt service, but if it's null, then it uses
+     * player performance repository
      */
-    private static PlayerPerformance getDefenderPerformance(PlayerPerformance playerPerformance, GoalAttempt goalAttempt) {
+    private long getDefenderPerformanceId(PlayerPerformance playerPerformance, GoalAttempt goalAttempt) {
         final String exceptionMessage =
                 "cannot find defender for goal attempt with id: " + goalAttempt.getId();
-        return playerPerformance.getGame().findDefenderPerformance(goalAttempt)
-                .orElseThrow(() -> new RuntimeException(exceptionMessage));
+
+        // try to get performance id through game
+        Optional<PlayerPerformance> defenderPerformance =
+                playerPerformance.getGame().findDefenderPerformance(goalAttempt);
+
+        if (defenderPerformance.isPresent()) {
+            return defenderPerformance.get().getId();
+        } else {
+            // get performance id from player repository
+            return this.goalAttemptService
+                    .findDefenderPerformanceIdByGoalAttemptId(goalAttempt.getId())
+                    .orElseThrow(() -> new RuntimeException(exceptionMessage));
+        }
+    }
+
+    /**
+     * get attacker performance id for goal attempt, throws Runtime Exception on failure
+     * tries to get it from game from goal attempt service, but if it's null, then it uses
+     * player performance repository
+     */
+    private long getAttackerPerformanceId(PlayerPerformance playerPerformance, GoalAttempt goalAttempt) {
+        final String exceptionMessage =
+                "Cannot find attacker for goal attempt with id: " + goalAttempt.getId();
+
+        // try to get performance id through game
+        Optional<PlayerPerformance> attackerPerformance =
+                playerPerformance.getGame().findAttackerPerformance(goalAttempt);
+
+        if (attackerPerformance.isPresent()) {
+            return attackerPerformance.get().getId();
+        } else {
+            // get performance id from player repository
+            return this.goalAttemptService
+                    .findAttackerPerformanceIdByGoalAttemptId(goalAttempt.getId())
+                    .orElseThrow(() -> new RuntimeException(exceptionMessage));
+        }
     }
 
     private boolean positionInRepository(Position position) {

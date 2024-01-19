@@ -23,6 +23,10 @@ public interface PenaltyShootService {
      */
     Optional<PenaltyShot> findById(long id);
 
+    Optional<Long> findGoalkeeperPerformanceIdByPenaltyShotId(long id);
+
+    Optional<Long> findShooterPerformanceIdByPenaltyShotId(long id);
+
     /**
      * finds PenaltyShot with specified goalkeeper performance id,
      * this will return list of PenaltyShots, but PlayerPerformances
