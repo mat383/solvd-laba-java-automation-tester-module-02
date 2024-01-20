@@ -21,12 +21,12 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public void create(Team team, long clubId, Long leagueId, Integer leaguePosition) {
-        // TODO this should be that either two are null or two have value - fix it
         if ((leaguePosition != null && leagueId == null)
                 || (leaguePosition == null && leagueId != null)) {
             throw new IllegalArgumentException(
                     "League position and league id both have to be either null or have some  value.");
         }
+
         // TODO add support for failure
         this.teamRepository.create(team, clubId, leagueId, leaguePosition);
         for (Player player : team.getPlayers()) {
@@ -45,6 +45,7 @@ public class TeamServiceImpl implements TeamService {
             throw new IllegalArgumentException(
                     "League position and league id both have to be either null or have some  value.");
         }
+
         // TODO add support for failure
         this.teamRepository.update(team, clubId, leagueId, leaguePosition);
         for (Player player : team.getPlayers()) {
@@ -67,18 +68,31 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public Optional<Team> findById(long id) {
-        return this.teamRepository.findById(id);
-        // TODO add players to the team
+        Optional<Team> team = this.teamRepository.findById(id);
+        team.ifPresent(this::loadPlayers);
+        return team;
     }
 
     @Override
     public List<Team> findAll() {
-        return this.teamRepository.findAll();
-        // TODO add players to the team
+        List<Team> teams = this.teamRepository.findAll();
+        teams.forEach(this::loadPlayers);
+        return teams;
     }
 
     @Override
     public List<Team> findByClubId(long id) {
-        return this.teamRepository.findByClubId(id);
+        List<Team> teams = this.teamRepository.findByClubId(id);
+        teams.forEach(this::loadPlayers);
+        return teams;
+    }
+
+
+    /**
+     * loads players belonging to team and adds them to team
+     */
+    private void loadPlayers(Team team) {
+        this.playerService.findByTeamId(team.getId())
+                .forEach(team::addPlayer);
     }
 }
