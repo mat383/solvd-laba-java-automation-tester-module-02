@@ -53,7 +53,7 @@ public class MySQLTable<T extends Identifiable> {
                     preparedStatement -> {
                         for (int i = 0; i < this.nonIdColumns.size(); i++) {
                             this.nonIdColumns.get(i).statementSetter().set(preparedStatement, i + 1, rowData);
-                            LOGGER.info("Inserting to column '" + this.nonIdColumns.get(i).name() + "' at position " + (i + 1));
+                            LOGGER.info("Building query: inserting to column '" + this.nonIdColumns.get(i).name() + "' at position " + (i + 1));
                         }
                     },
                     CONNECTION_POOL);
@@ -81,7 +81,7 @@ public class MySQLTable<T extends Identifiable> {
                             LOGGER.info("Inserting to column '" + this.nonIdColumns.get(i).name() + "' at position " + (i + 1));
                         }
                         preparedStatement.setLong(this.nonIdColumns.size() + 1, rowData.getId());
-                        LOGGER.info("Inserting to column '" + this.idColumnName + "' at position " + (this.nonIdColumns.size() + 1));
+                        LOGGER.info("Building query: inserting to column '" + this.idColumnName + "' at position " + (this.nonIdColumns.size() + 1));
                     },
                     CONNECTION_POOL);
             assert affectedRows == 1;
@@ -101,7 +101,7 @@ public class MySQLTable<T extends Identifiable> {
                     // fill in PreparedStatement
                     preparedStatement -> {
                         preparedStatement.setLong(1, rowData.getId());
-                        LOGGER.info("Inserting to column '" + this.idColumnName + "' at position " + 1);
+                        LOGGER.info("Building query: inserting to column '" + this.idColumnName + "' at position " + 1);
                     },
                     CONNECTION_POOL);
             assert affectedRows < 2;
@@ -134,7 +134,8 @@ public class MySQLTable<T extends Identifiable> {
                     // create SELECT query
                     MySQLQueryBuilder.buildSelectAllQuery(this.name, this.getAllColumnNames()),
                     // fill in PreparedStatement
-                    preparedStatement -> {},
+                    preparedStatement -> {
+                    },
                     this::createObjectFromResultSet,
                     CONNECTION_POOL);
         } catch (SQLException e) {
@@ -153,7 +154,7 @@ public class MySQLTable<T extends Identifiable> {
                     // fill in PreparedStatement
                     preparedStatement -> {
                         preparedStatement.setLong(1, columnValue);
-                        LOGGER.info("Inserting to column '" + longColumnName + "' at position " + 1);
+                        LOGGER.info("Building query: inserting to column '" + longColumnName + "' at position " + 1);
                     },
                     this::createObjectFromResultSet,
                     CONNECTION_POOL);

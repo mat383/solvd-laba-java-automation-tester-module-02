@@ -117,7 +117,7 @@ public class PlayerRepositoryMySQL implements PlayerRepository {
     public List<Player> findByTeamId(long teamId) {
         try {
             return MySQLRepositoryHelper.executeQuery(
-                    "SELECT id, person_id, preffered_position FROM players WHERE team_id=?;",
+                    "SELECT id, person_id, preffered_position_id FROM players WHERE team_id=?;",
                     preparedStatement -> preparedStatement.setLong(1, teamId),
                     PlayerRepositoryMySQL::createPlayerFromResultSet,
                     CONNECTION_POOL);
@@ -131,7 +131,7 @@ public class PlayerRepositoryMySQL implements PlayerRepository {
         Person playerPerson = new Person();
         playerPerson.setId(resultSet.getLong("person_id"));
         Position preferredPosition = new Position();
-        preferredPosition.setId(resultSet.getLong("prerffered_position_id"));
+        preferredPosition.setId(resultSet.getLong("preffered_position_id"));
 
         return new Player(
                 resultSet.getLong("id"),

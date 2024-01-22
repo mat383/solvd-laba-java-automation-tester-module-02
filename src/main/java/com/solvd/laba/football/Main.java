@@ -1,15 +1,9 @@
 package com.solvd.laba.football;
 
 
-import com.solvd.laba.football.domain.Person;
-import com.solvd.laba.football.domain.PlayerPerformance;
-import com.solvd.laba.football.domain.Position;
-import com.solvd.laba.football.domain.ShootOutcome;
+import com.solvd.laba.football.domain.*;
 import com.solvd.laba.football.persistence.RepositoryFactory;
-import com.solvd.laba.football.persistence.impl.GoalAttemptRepositoryMySQL;
-import com.solvd.laba.football.persistence.impl.PenaltyShotRepositoryMySQL;
-import com.solvd.laba.football.persistence.impl.PlayerPerformanceRepositoryMySQL;
-import com.solvd.laba.football.persistence.impl.RepositoryFactoryMySQL;
+import com.solvd.laba.football.persistence.impl.*;
 import com.solvd.laba.football.service.*;
 import com.solvd.laba.football.service.impl.*;
 
@@ -34,6 +28,8 @@ public class Main {
                 goalAttemptService,
                 penaltyShootService,
                 positionService);
+        PlayerService playerService = new PlayerServiceImpl(new PlayerRepositoryMySQL(),
+                personService, playerPerformanceService, positionService);
 
         List<Person> people = personService.findAll();
         for (Person personTest : people) {
@@ -54,5 +50,17 @@ public class Main {
         for (PlayerPerformance playerPerformance : playerPerformanceService.findAll()) {
             System.out.println("playerPerformanceId: " + playerPerformance.getId());
         }
+
+        TeamService teamService = new TeamServiceImpl(new TeamRepositoryMySQL(), playerService);
+        List<Team> teams = teamService.findAll();
+        for (Team team : teams) {
+            System.out.println(team.getName());
+            team.getPlayers().forEach(player -> System.out.println(player.getPerson().getFirstName()));
+            team.getPlayers().forEach(player -> System.out.println(player.getId()));
+        }
+
+        GameOutcomePredictorService gameOutcomePredictorService = new GameOutcomePredictorServiceImpl();
+        Team winner = gameOutcomePredictorService.predictGameWinner(teams.get(3), teams.get(1));
+        System.out.println("winner is: " + winner.getName());
     }
 }

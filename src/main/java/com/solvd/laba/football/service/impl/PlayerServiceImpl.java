@@ -83,6 +83,7 @@ public class PlayerServiceImpl implements PlayerService {
      * loads & fills in player object with:
      * player performances
      * position
+     * person
      *
      * @return returns passed player object
      */
@@ -96,6 +97,11 @@ public class PlayerServiceImpl implements PlayerService {
         Position fullyLoadedPreferredPosition = this.positionService
                 .findById(player.getPreferredPosition().getId()).get();
         player.setPreferredPosition(fullyLoadedPreferredPosition);
+
+        // load & add person
+        Person fullyLoadedPerson = this.personService
+                .findById(player.getPerson().getId()).get();
+        player.setPerson(fullyLoadedPerson);
 
         return player;
     }

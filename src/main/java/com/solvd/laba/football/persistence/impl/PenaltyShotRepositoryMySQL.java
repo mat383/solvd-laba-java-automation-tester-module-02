@@ -68,7 +68,7 @@ public class PenaltyShotRepositoryMySQL implements PenaltyShotRepository {
 
     @Override
     public List<PenaltyShot> findByGoalkeeperPerformanceId(long id) {
-        return this.penaltyShotsTable.findRowsByLongColumn("defender_performance_id", id)
+        return this.penaltyShotsTable.findRowsByLongColumn("goalkeeper_performance_id", id)
                 .stream()
                 .map(PenaltyShotTransport::toGoalAttempt)
                 .toList();
@@ -76,7 +76,7 @@ public class PenaltyShotRepositoryMySQL implements PenaltyShotRepository {
 
     @Override
     public List<PenaltyShot> findByShooterPerformanceId(long id) {
-        return this.penaltyShotsTable.findRowsByLongColumn("attacker_performance_id", id)
+        return this.penaltyShotsTable.findRowsByLongColumn("shooter_performance_id", id)
                 .stream()
                 .map(PenaltyShotTransport::toGoalAttempt)
                 .toList();
@@ -129,7 +129,7 @@ public class PenaltyShotRepositoryMySQL implements PenaltyShotRepository {
                         }
                 ),
                 new MySQLTable.Column<>(
-                        "attacker_performance_id",
+                        "shooter_performance_id",
                         // setting prepared statement
                         (preparedStatement, parameterIndex, penaltyShot) -> {
                             preparedStatement.setLong(parameterIndex, penaltyShot.getShooterPerformanceId());

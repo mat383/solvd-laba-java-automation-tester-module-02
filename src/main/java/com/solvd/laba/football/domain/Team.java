@@ -5,6 +5,7 @@ import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,8 +25,7 @@ public class Team implements Identifiable {
     private LocalDate closureDate;
 
     @Getter(AccessLevel.NONE)
-    private List<Player> players;
-    //private List<SupportStaff> supportStaff;
+    private List<Player> players = new ArrayList<>();
 
     public Team(long id, String name, LocalDate creationDate, LocalDate closureDate) {
         if (StringUtils.isBlank(name)) {
