@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.laba.football.persistence.PositionRepository">
+    <insert id="create" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+        Insert into positions (name) values (#{name})
+    </insert>
+
+    <update id="update">
+        Update positions set name=#{name} where id=#{id}
+    </update>
+
+    <delete id="delete">
+        delete from positions where id=#{id}
+    </delete>
+
+    <sql id="positionSelect">
+        Select id, name from positions
+    </sql>
+
+    <select id="findById" resultMap="PositionResultMap">
+        <include refid="positionSelect"/>
+        where id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="PositionResultMap">
+        <include refid="positionSelect"/>
+    </select>
+
+    <resultMap id="PositionResultMap" type="com.solvd.laba.football.domain.Position" autoMapping="false">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+    </resultMap>
+</mapper>
