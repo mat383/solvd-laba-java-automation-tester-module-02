@@ -1,11 +1,11 @@
-package com.solvd.laba.football.persistence.impl;
+package com.solvd.laba.football.persistence.impl.jdbc;
 
 import com.solvd.laba.football.domain.Person;
 import com.solvd.laba.football.domain.Player;
 import com.solvd.laba.football.domain.Position;
 import com.solvd.laba.football.persistence.PlayerRepository;
-import com.solvd.laba.football.persistence.impl.util.MySQLConnectionPool;
-import com.solvd.laba.football.persistence.impl.util.MySQLRepositoryHelper;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLConnectionPool;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLRepositoryHelper;
 import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,8 +15,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class PlayerRepositoryMySQL implements PlayerRepository {
-    private static final Logger LOGGER = LogManager.getLogger(PlayerRepositoryMySQL.class.getName());
+public class PlayerRepositoryJDBC implements PlayerRepository {
+    private static final Logger LOGGER = LogManager.getLogger(PlayerRepositoryJDBC.class.getName());
     private static final MySQLConnectionPool CONNECTION_POOL = MySQLConnectionPool.getInstance();
 
 
@@ -86,7 +86,7 @@ public class PlayerRepositoryMySQL implements PlayerRepository {
             List<Player> results = MySQLRepositoryHelper.executeQuery(
                     "SELECT id, person_id, preffered_position FROM players WHERE id=?;",
                     preparedStatement -> preparedStatement.setLong(1, id),
-                    PlayerRepositoryMySQL::createPlayerFromResultSet,
+                    PlayerRepositoryJDBC::createPlayerFromResultSet,
                     CONNECTION_POOL);
             assert results.size() < 2;
 
@@ -106,7 +106,7 @@ public class PlayerRepositoryMySQL implements PlayerRepository {
                     "SELECT id, person_id, preffered_position FROM players;",
                     preparedStatement -> {
                     },
-                    PlayerRepositoryMySQL::createPlayerFromResultSet,
+                    PlayerRepositoryJDBC::createPlayerFromResultSet,
                     CONNECTION_POOL);
         } catch (SQLException e) {
             throw new RuntimeException("Unable to find player", e);
@@ -119,7 +119,7 @@ public class PlayerRepositoryMySQL implements PlayerRepository {
             return MySQLRepositoryHelper.executeQuery(
                     "SELECT id, person_id, preffered_position_id FROM players WHERE team_id=?;",
                     preparedStatement -> preparedStatement.setLong(1, teamId),
-                    PlayerRepositoryMySQL::createPlayerFromResultSet,
+                    PlayerRepositoryJDBC::createPlayerFromResultSet,
                     CONNECTION_POOL);
         } catch (SQLException e) {
             throw new RuntimeException("Unable to find player", e);

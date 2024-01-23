@@ -1,9 +1,9 @@
-package com.solvd.laba.football.persistence.impl;
+package com.solvd.laba.football.persistence.impl.jdbc;
 
 import com.solvd.laba.football.domain.*;
 import com.solvd.laba.football.domain.interfaces.Identifiable;
 import com.solvd.laba.football.persistence.PlayerPerformanceRepository;
-import com.solvd.laba.football.persistence.impl.util.MySQLTable;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLTable;
 import lombok.*;
 
 import java.sql.Time;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class PlayerPerformanceRepositoryMySQL implements PlayerPerformanceRepository {
+public class PlayerPerformanceRepositoryJDBC implements PlayerPerformanceRepository {
     private final MySQLTable<PlayerPerformanceTransfer> playerPerformanceTable = createPlayerPerformanceTableDescription();
 
     @Override

@@ -1,8 +1,8 @@
-package com.solvd.laba.football.persistence.impl;
+package com.solvd.laba.football.persistence.impl.jdbc;
 
 import com.solvd.laba.football.domain.Game;
 import com.solvd.laba.football.persistence.GameRepository;
-import com.solvd.laba.football.persistence.impl.util.MySQLTable;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLTable;
 
 import java.sql.Time;
 import java.time.Duration;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public class GameRepositoryMySQL implements GameRepository {
+public class GameRepositoryJDBC implements GameRepository {
 
     // TODO when stadiums are implemented add them here
     private final MySQLTable<Game> gamesTable = createGamesTableDescription();

@@ -1,12 +1,12 @@
-package com.solvd.laba.football.persistence.impl;
+package com.solvd.laba.football.persistence.impl.jdbc;
 
 import com.solvd.laba.football.domain.GoalAttempt;
 import com.solvd.laba.football.domain.ShootOutcome;
 import com.solvd.laba.football.domain.interfaces.Identifiable;
 import com.solvd.laba.football.persistence.GoalAttemptRepository;
-import com.solvd.laba.football.persistence.impl.util.MySQLConnectionPool;
-import com.solvd.laba.football.persistence.impl.util.MySQLRepositoryHelper;
-import com.solvd.laba.football.persistence.impl.util.MySQLTable;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLConnectionPool;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLRepositoryHelper;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLTable;
 import lombok.*;
 
 import java.sql.SQLException;
@@ -14,7 +14,7 @@ import java.sql.Time;
 import java.util.List;
 import java.util.Optional;
 
-public class GoalAttemptRepositoryMySQL implements GoalAttemptRepository {
+public class GoalAttemptRepositoryJDBC implements GoalAttemptRepository {
     private static final MySQLConnectionPool CONNECTION_POOL = MySQLConnectionPool.getInstance();
 
     private final MySQLTable<GoalAttemptTransport> goalAttemptsTable = createGoalAttemptsTableDescription();

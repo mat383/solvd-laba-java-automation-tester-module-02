@@ -1,8 +1,8 @@
-package com.solvd.laba.football.persistence.impl;
+package com.solvd.laba.football.persistence.impl.jdbc;
 
 import com.solvd.laba.football.domain.ShootOutcome;
 import com.solvd.laba.football.persistence.ShootOutcomeRepository;
-import com.solvd.laba.football.persistence.impl.util.MySQLTable;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLTable;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,14 +10,14 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class ShootOutcomeRepositoryMySQL implements ShootOutcomeRepository {
+public class ShootOutcomeRepositoryJDBC implements ShootOutcomeRepository {
     private final MySQLTable<ShootOutcome> shootOutcomesTable = new MySQLTable<>(
             "shoot_outcomes",
             "id",
             List.of(
                     new MySQLTable.Column<>("name",
-                            ShootOutcomeRepositoryMySQL::nameResultSetter,
-                            ShootOutcomeRepositoryMySQL::nameResultSaver)
+                            ShootOutcomeRepositoryJDBC::nameResultSetter,
+                            ShootOutcomeRepositoryJDBC::nameResultSaver)
             ),
             () -> new ShootOutcome(null, null)
     );

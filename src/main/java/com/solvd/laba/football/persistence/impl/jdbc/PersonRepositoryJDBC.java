@@ -1,9 +1,9 @@
-package com.solvd.laba.football.persistence.impl;
+package com.solvd.laba.football.persistence.impl.jdbc;
 
 import com.solvd.laba.football.domain.Person;
 import com.solvd.laba.football.persistence.PersonRepository;
-import com.solvd.laba.football.persistence.impl.util.MySQLConnectionPool;
-import com.solvd.laba.football.persistence.impl.util.MySQLRepositoryHelper;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLConnectionPool;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLRepositoryHelper;
 import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class PersonRepositoryMySQL implements PersonRepository {
-    private static final Logger LOGGER = LogManager.getLogger(PersonRepositoryMySQL.class.getName());
+public class PersonRepositoryJDBC implements PersonRepository {
+    private static final Logger LOGGER = LogManager.getLogger(PersonRepositoryJDBC.class.getName());
     private static final MySQLConnectionPool CONNECTION_POOL = MySQLConnectionPool.getInstance();
 
 
@@ -93,7 +93,7 @@ public class PersonRepositoryMySQL implements PersonRepository {
             List<Person> results = MySQLRepositoryHelper.executeQuery(
                     "SELECT id, first_name, last_name, birth_date FROM people WHERE id=?;",
                     preparedStatement -> preparedStatement.setLong(1, id),
-                    PersonRepositoryMySQL::createPersonFromResultSet,
+                    PersonRepositoryJDBC::createPersonFromResultSet,
                     CONNECTION_POOL);
             assert results.size() < 2;
 
@@ -111,8 +111,9 @@ public class PersonRepositoryMySQL implements PersonRepository {
         try {
             return MySQLRepositoryHelper.executeQuery(
                     "SELECT id, first_name, last_name, birth_date FROM people;",
-                    preparedStatement -> {},
-                    PersonRepositoryMySQL::createPersonFromResultSet,
+                    preparedStatement -> {
+                    },
+                    PersonRepositoryJDBC::createPersonFromResultSet,
                     CONNECTION_POOL);
         } catch (SQLException e) {
             throw new RuntimeException("Unable to find person", e);

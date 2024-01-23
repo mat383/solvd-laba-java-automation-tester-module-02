@@ -22,6 +22,7 @@
         <apacheCommonsLangVersion>3.14.0</apacheCommonsLangVersion>
         <apacheCommonsIOVersion>2.15.1</apacheCommonsIOVersion>
         <lombokVersion>1.18.30</lombokVersion>
+        <myBatisVersion>3.5.15</myBatisVersion>
         <mavenCompilerVersion>3.11.0</mavenCompilerVersion>
     </properties>
 
@@ -54,6 +55,12 @@
             <artifactId>lombok</artifactId>
             <version>${lombokVersion}</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.mybatis/mybatis -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>${myBatisVersion}</version>
         </dependency>
     </dependencies>
 

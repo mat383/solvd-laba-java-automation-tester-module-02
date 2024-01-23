@@ -1,9 +1,9 @@
-package com.solvd.laba.football.persistence.impl;
+package com.solvd.laba.football.persistence.impl.jdbc;
 
 import com.solvd.laba.football.domain.Position;
 import com.solvd.laba.football.persistence.PositionRepository;
-import com.solvd.laba.football.persistence.impl.util.MySQLConnectionPool;
-import com.solvd.laba.football.persistence.impl.util.MySQLRepositoryHelper;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLConnectionPool;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLRepositoryHelper;
 import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,8 +13,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class PositionRepositoryMySQL implements PositionRepository {
-    private static final Logger LOGGER = LogManager.getLogger(PositionRepositoryMySQL.class.getName());
+public class PositionRepositoryJDBC implements PositionRepository {
+    private static final Logger LOGGER = LogManager.getLogger(PositionRepositoryJDBC.class.getName());
     private static final MySQLConnectionPool CONNECTION_POOL = MySQLConnectionPool.getInstance();
 
 
@@ -83,7 +83,7 @@ public class PositionRepositoryMySQL implements PositionRepository {
             List<Position> results = MySQLRepositoryHelper.executeQuery(
                     "SELECT id, name FROM positions WHERE id=?;",
                     preparedStatement -> preparedStatement.setLong(1, id),
-                    PositionRepositoryMySQL::createPositionFromResultSet,
+                    PositionRepositoryJDBC::createPositionFromResultSet,
                     CONNECTION_POOL);
             assert results.size() < 2;
 
@@ -101,8 +101,9 @@ public class PositionRepositoryMySQL implements PositionRepository {
         try {
             return MySQLRepositoryHelper.executeQuery(
                     "SELECT id, name FROM positions;",
-                    preparedStatement -> {},
-                    PositionRepositoryMySQL::createPositionFromResultSet,
+                    preparedStatement -> {
+                    },
+                    PositionRepositoryJDBC::createPositionFromResultSet,
                     CONNECTION_POOL);
         } catch (SQLException e) {
             throw new RuntimeException("Unable to find position", e);

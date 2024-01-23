@@ -1,4 +1,4 @@
-package com.solvd.laba.football.persistence.impl.util;
+package com.solvd.laba.football.persistence.impl.jdbc.util;
 
 import com.solvd.laba.football.domain.interfaces.Identifiable;
 import lombok.AllArgsConstructor;

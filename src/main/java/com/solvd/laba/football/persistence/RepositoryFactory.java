@@ -1,13 +1,21 @@
 package com.solvd.laba.football.persistence;
 
 public interface RepositoryFactory {
+    GameRepository createGameRepository();
+
+    GoalAttemptRepository createGoalAttemptRepository();
+
+    PenaltyShotRepository createPenaltyShotRepository();
+
     PersonRepository createPersonRepository();
 
-    PlayerRepository createPlayerRepository();
+    PlayerPerformanceRepository createPlayerPerformanceRepository();
 
-    TeamRepository createTeamRepository();
+    PlayerRepository createPlayerRepository();
 
     PositionRepository createPositionRepository();
 
     ShootOutcomeRepository createShootOutcomeRepository();
+
+    TeamRepository createTeamRepository();
 }

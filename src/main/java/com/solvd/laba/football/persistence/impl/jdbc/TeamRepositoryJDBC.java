@@ -1,9 +1,9 @@
-package com.solvd.laba.football.persistence.impl;
+package com.solvd.laba.football.persistence.impl.jdbc;
 
 import com.solvd.laba.football.domain.Team;
 import com.solvd.laba.football.persistence.TeamRepository;
-import com.solvd.laba.football.persistence.impl.util.MySQLConnectionPool;
-import com.solvd.laba.football.persistence.impl.util.MySQLRepositoryHelper;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLConnectionPool;
+import com.solvd.laba.football.persistence.impl.jdbc.util.MySQLRepositoryHelper;
 import lombok.NonNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,8 +15,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public class TeamRepositoryMySQL implements TeamRepository {
-    private static final Logger LOGGER = LogManager.getLogger(TeamRepositoryMySQL.class.getName());
+public class TeamRepositoryJDBC implements TeamRepository {
+    private static final Logger LOGGER = LogManager.getLogger(TeamRepositoryJDBC.class.getName());
     private static final MySQLConnectionPool CONNECTION_POOL = MySQLConnectionPool.getInstance();
 
     @Override
@@ -91,7 +91,7 @@ public class TeamRepositoryMySQL implements TeamRepository {
             List<Team> results = MySQLRepositoryHelper.executeQuery(
                     "SELECT id, name, club_id, creation_date, closure_date, league_id, league_position FROM teams WHERE id=?;",
                     preparedStatement -> preparedStatement.setLong(1, id),
-                    TeamRepositoryMySQL::createTeamFromResultSet,
+                    TeamRepositoryJDBC::createTeamFromResultSet,
                     CONNECTION_POOL);
             if (!results.isEmpty()) {
                 team = Optional.of(results.get(1));
@@ -107,8 +107,9 @@ public class TeamRepositoryMySQL implements TeamRepository {
         try {
             return MySQLRepositoryHelper.executeQuery(
                     "SELECT id, name, club_id, creation_date, closure_date, league_id, league_position FROM teams;",
-                    preparedStatement -> {},
-                    TeamRepositoryMySQL::createTeamFromResultSet,
+                    preparedStatement -> {
+                    },
+                    TeamRepositoryJDBC::createTeamFromResultSet,
                     CONNECTION_POOL);
         } catch (SQLException e) {
             throw new RuntimeException("Unable to create team", e);
@@ -121,7 +122,7 @@ public class TeamRepositoryMySQL implements TeamRepository {
             return MySQLRepositoryHelper.executeQuery(
                     "SELECT id, name, club_id, creation_date, closure_date, league_id, league_position FROM teams WHERE club_id=?;",
                     preparedStatement -> preparedStatement.setLong(1, id),
-                    TeamRepositoryMySQL::createTeamFromResultSet,
+                    TeamRepositoryJDBC::createTeamFromResultSet,
                     CONNECTION_POOL);
         } catch (SQLException e) {
             throw new RuntimeException("Unable to create team", e);

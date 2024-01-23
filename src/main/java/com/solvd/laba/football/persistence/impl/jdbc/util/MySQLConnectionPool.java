@@ -1,4 +1,4 @@
-package com.solvd.laba.football.persistence.impl.util;
+package com.solvd.laba.football.persistence.impl.jdbc.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
