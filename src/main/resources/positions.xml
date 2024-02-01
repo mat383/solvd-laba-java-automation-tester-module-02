@@ -1,0 +1,11 @@
+<positions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="positions.xsd">
+    <position id="1">
+        <name>Goalkeeper</name>
+    </position>
+    <position id="2">
+        <name>Defender</name>
+    </position>
+    <position id="3">
+        <name>Attacker</name>
+    </position>
+</positions>

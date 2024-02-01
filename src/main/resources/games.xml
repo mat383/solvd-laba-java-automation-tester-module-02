@@ -1,0 +1,8 @@
+<games xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="games.xsd">
+    <game id="1">
+        <name>some game</name>
+        <time>2024-01-01T12:31:00</time>
+        <duration>PT1H30M</duration>
+        <firstHalfDuration>PT45M</firstHalfDuration>
+    </game>
+</games>

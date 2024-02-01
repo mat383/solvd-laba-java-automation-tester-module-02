@@ -1,0 +1,29 @@
+<teams xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="teams.xsd">
+    <team id="1">
+        <name>Some Team</name>
+        <creationDate>2012-01-01</creationDate>
+        <closureDate>2014-01-01</closureDate>
+        <players>
+            <player id="1">
+                <person id="3">
+                    <firstName>Person 1</firstName>
+                    <lastName>Last 1</lastName>
+                    <birthDate>1991-01-02</birthDate>
+                </person>
+                <preferredPositionRef id="1"/>
+                <playerPerformances>
+                    <playerPerformance id="1">
+                        <positionRef id="1"/>
+                        <gameRef id="1"/>
+                        <teamRef id="1"/>
+                        <defensivePerformance>0.2</defensivePerformance>
+                        <offensivePerformance>0.8</offensivePerformance>
+                        <cooperativePerformance>0.6</cooperativePerformance>
+                        <start>00:00:00</start>
+                        <end>01:30:00</end>
+                    </playerPerformance>
+                </playerPerformances>
+            </player>
+        </players>
+    </team>
+</teams>

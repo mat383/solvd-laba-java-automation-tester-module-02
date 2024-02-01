@@ -1,0 +1,18 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="positions">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="position" type="positionType"
+                            minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="positionType">
+        <xs:all>
+            <xs:element name="name" type="xs:string"/>
+        </xs:all>
+        <xs:attribute name="id" type="xs:long" use="required"/>
+    </xs:complexType>
+
+</xs:schema>

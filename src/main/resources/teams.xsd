@@ -1,0 +1,78 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="teams">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="team" type="teamType"
+                            minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="teamType">
+        <xs:all>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="creationDate" type="xs:date"/>
+            <xs:element name="closureDate" type="xs:date" minOccurs="0"/>
+            <xs:element name="players">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="player" type="playerType"
+                                    minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:all>
+        <xs:attribute name="id" type="xs:long" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="playerType">
+        <xs:all>
+            <xs:element name="person" type="personType"/>
+            <xs:element name="preferredPositionRef" type="positionReferenceType"/>
+            <xs:element name="playerPerformances">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="playerPerformance" type="playerPerformanceType"
+                                    minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:all>
+        <xs:attribute name="id" type="xs:long" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="personType">
+        <xs:all>
+            <xs:element name="firstName" type="xs:string"/>
+            <xs:element name="lastName" type="xs:string"/>
+            <xs:element name="birthDate" type="xs:date"/>
+        </xs:all>
+        <xs:attribute name="id" type="xs:long" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="positionReferenceType">
+        <xs:attribute name="id" type="xs:long" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="gameReferenceType">
+        <xs:attribute name="id" type="xs:long" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="teamReferenceType">
+        <xs:attribute name="id" type="xs:long" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="playerPerformanceType">
+        <xs:all>
+            <xs:element name="positionRef" type="positionReferenceType"/>
+            <xs:element name="gameRef" type="gameReferenceType"/>
+            <xs:element name="teamRef" type="teamReferenceType"/>
+            <xs:element name="defensivePerformance" type="xs:double"/>
+            <xs:element name="offensivePerformance" type="xs:double"/>
+            <xs:element name="cooperativePerformance" type="xs:double"/>
+            <xs:element name="start" type="xs:time"/>
+            <xs:element name="end" type="xs:time"/>
+        </xs:all>
+        <xs:attribute name="id" type="xs:long" use="required"/>
+    </xs:complexType>
+</xs:schema>
