@@ -1,0 +1,11 @@
+{
+  "games": [
+    {
+      "id": 0,
+      "name": "some game",
+      "time": "2024-01-01T12:31:00",
+      "duration": "PT1H30M",
+      "firstHalfDuration": "PT45M"
+    }
+  ]
+}

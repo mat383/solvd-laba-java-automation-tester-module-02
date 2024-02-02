@@ -14,7 +14,7 @@ public class JaxbDemonstration {
             Unmarshaller positionsUnmarshaller = positionsContext.createUnmarshaller();
 
             PositionsList positionsList = (PositionsList) positionsUnmarshaller.unmarshal(new File("src/main/resources/positions.xml"));
-            System.out.println(positionsList.getPositions().size());
+            System.out.printf("loaded %d positions\n", positionsList.getPositions().size());
             for (var position : positionsList.getPositions()) {
                 System.out.printf("- (%d) %s\n", position.getId(), position.getName());
             }
@@ -23,11 +23,19 @@ public class JaxbDemonstration {
             Unmarshaller gamesUnmarshaller = gamesContext.createUnmarshaller();
 
             GamesList gamesList = (GamesList) gamesUnmarshaller.unmarshal(new File("src/main/resources/games.xml"));
-            System.out.println(gamesList.getGames().size());
+            System.out.printf("loaded %d games\n", gamesList.getGames().size());
             for (var position : gamesList.getGames()) {
                 System.out.printf("- (%d) %s\n", position.getId(), position.getName());
             }
 
+            JAXBContext teamsContext = JAXBContext.newInstance(TeamsList.class);
+            Unmarshaller teamsUnmarshaller = teamsContext.createUnmarshaller();
+
+            /*TeamsList teamsList = (TeamsList) teamsUnmarshaller.unmarshal(new File("src/main/resources/teams.xml"));
+            System.out.println(gamesList.getGames().size());
+            for (var team : teamsList.getTeams()) {
+                System.out.printf("- (%d) %s\n", team.getId(), team.getName());
+            }*/
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }

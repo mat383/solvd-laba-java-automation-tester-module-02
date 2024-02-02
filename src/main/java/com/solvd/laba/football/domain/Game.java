@@ -1,6 +1,10 @@
 package com.solvd.laba.football.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.solvd.laba.football.domain.interfaces.Identifiable;
+import com.solvd.laba.json.JacksonDateTimeAdapter;
+import com.solvd.laba.json.JacksonPartialDurationAdapter;
 import com.solvd.laba.xml.jaxb.JaxbDateTimeAdapter;
 import com.solvd.laba.xml.jaxb.JaxbPartialDurationAdapter;
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -28,20 +32,27 @@ public class Game implements Identifiable {
     private Long id;
     private String name;
     @XmlJavaTypeAdapter(JaxbDateTimeAdapter.class)
+    @JsonDeserialize(using = JacksonDateTimeAdapter.class)
     private LocalDateTime time;
     @XmlJavaTypeAdapter(JaxbPartialDurationAdapter.class)
+    @JsonDeserialize(using = JacksonPartialDurationAdapter.class)
     private Duration duration;
     @XmlJavaTypeAdapter(JaxbPartialDurationAdapter.class)
+    @JsonDeserialize(using = JacksonPartialDurationAdapter.class)
     private Duration firstHalfDuration;
     @XmlTransient
+    @JsonIgnore
     private Team teamA = new Team();
     @Setter(AccessLevel.NONE)
     @XmlTransient
+    @JsonIgnore
     private List<PlayerPerformance> playerPerformancesTeamA = new ArrayList<>();
     @XmlTransient
+    @JsonIgnore
     private Team teamB = new Team();
     @Setter(AccessLevel.NONE)
     @XmlTransient
+    @JsonIgnore
     private List<PlayerPerformance> playerPerformancesTeamB = new ArrayList<>();
 
     public Game(Long id, String name,

@@ -1,0 +1,16 @@
+{
+  "positions": [
+    {
+      "id": 0,
+      "name": "Goalkeeper"
+    },
+    {
+      "id": 1,
+      "name": "Defender"
+    },
+    {
+      "id": 2,
+      "name": "Attacker"
+    }
+  ]
+}
