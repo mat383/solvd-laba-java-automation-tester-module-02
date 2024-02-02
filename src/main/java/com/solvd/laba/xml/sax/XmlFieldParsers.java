@@ -1,4 +1,4 @@
-package com.solvd.laba.xml;
+package com.solvd.laba.xml.sax;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class XmlFieldParsers {
-    private static final Pattern TIMEDATE_REGEX =
+    private static final Pattern DATETIME_REGEX =
             Pattern.compile("(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d)T(\\d\\d):(\\d\\d):(\\d\\d)");
 
     private static final Pattern DATE_REGEX =
@@ -21,7 +21,7 @@ public class XmlFieldParsers {
             Pattern.compile("PT((?<hour>\\d+)H)?((?<minute>\\d+)M)?((?<second>\\d+)S)?");
 
     public static LocalDateTime parseDateTime(String text) {
-        Matcher matcher = TIMEDATE_REGEX.matcher(text);
+        Matcher matcher = DATETIME_REGEX.matcher(text);
         if (matcher.matches()) {
             return LocalDateTime.of(
                     Integer.parseInt(matcher.group(1)),

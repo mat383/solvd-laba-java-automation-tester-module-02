@@ -1,6 +1,13 @@
 package com.solvd.laba.football.domain;
 
 import com.solvd.laba.football.domain.interfaces.Identifiable;
+import com.solvd.laba.xml.jaxb.JaxbDateTimeAdapter;
+import com.solvd.laba.xml.jaxb.JaxbPartialDurationAdapter;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import lombok.*;
 
 import java.time.Duration;
@@ -14,18 +21,27 @@ import java.util.stream.Stream;
 @Getter
 @Setter
 @NoArgsConstructor
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Game implements Identifiable {
     @Setter(AccessLevel.NONE)
+    @XmlAttribute(name = "id")
     private Long id;
     private String name;
+    @XmlJavaTypeAdapter(JaxbDateTimeAdapter.class)
     private LocalDateTime time;
+    @XmlJavaTypeAdapter(JaxbPartialDurationAdapter.class)
     private Duration duration;
+    @XmlJavaTypeAdapter(JaxbPartialDurationAdapter.class)
     private Duration firstHalfDuration;
+    @XmlTransient
     private Team teamA = new Team();
     @Setter(AccessLevel.NONE)
+    @XmlTransient
     private List<PlayerPerformance> playerPerformancesTeamA = new ArrayList<>();
+    @XmlTransient
     private Team teamB = new Team();
     @Setter(AccessLevel.NONE)
+    @XmlTransient
     private List<PlayerPerformance> playerPerformancesTeamB = new ArrayList<>();
 
     public Game(Long id, String name,

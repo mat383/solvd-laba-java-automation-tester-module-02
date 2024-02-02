@@ -1,4 +1,4 @@
-package com.solvd.laba.xml;
+package com.solvd.laba.xml.sax;
 
 import com.solvd.laba.football.domain.Position;
 import lombok.Getter;

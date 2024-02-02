@@ -1,4 +1,4 @@
-package com.solvd.laba.xml;
+package com.solvd.laba.xml.sax;
 
 public class XmlSchemaException extends Exception {
     public XmlSchemaException() {
