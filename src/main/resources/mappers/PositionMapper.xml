@@ -16,17 +16,17 @@
         delete from positions where id=#{id}
     </delete>
 
-    <sql id="positionSelect">
+    <sql id="selectPositions">
         Select id, name from positions
     </sql>
 
     <select id="findById" resultMap="PositionResultMap">
-        <include refid="positionSelect"/>
+        <include refid="selectPositions"/>
         where id = #{id}
     </select>
 
     <select id="findAll" resultMap="PositionResultMap">
-        <include refid="positionSelect"/>
+        <include refid="selectPositions"/>
     </select>
 
     <resultMap id="PositionResultMap" type="com.solvd.laba.football.domain.Position" autoMapping="false">

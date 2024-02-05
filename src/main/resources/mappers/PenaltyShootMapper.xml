@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.laba.football.persistence.PenaltyShotRepository">
+    <insert id="create" keyColumn="id" keyProperty="penaltyShot.id" useGeneratedKeys="true">
+        Insert into penalty_shots (goalkeeper_performance_id, shooter_performance_id, outcome_id, game_time)
+        values (#{goalkeeperPerformanceId}, #{shooterPerformanceId}, #{penaltyShot.outcome.id}, #{penaltyShot.gameTime})
+    </insert>
+
+    <update id="update">
+        Update penalty_shots
+        set
+        goalkeeper_performance_id = #{goalkeeperPerformanceId},
+        shooter_performance_id = #{shooterPerformanceId},
+        outcome_id = #{penaltyShot.outcome.id},
+        game_time = #{penaltyShot.gameTime}
+        where id=#{id}
+    </update>
+
+    <delete id="delete">
+        delete from penalty_shots where id=#{id}
+    </delete>
+
+    <sql id="selectPenaltyShots">
+        Select
+        penalty_shots.id as penalty_shot_id,
+        shoot_outcomes.id as outcome_id,
+        shoot_outcomes.name as outcome_name,
+        game_time
+        from penalty_shots
+        Left Join shoot_outcomes on penalty_shots.outcome_id = shoot_outcomes.id
+    </sql>
+
+    <select id="findById" resultMap="PenaltyShotsResultMap">
+        <include refid="selectPenaltyShots"/>
+        where penalty_shot_id = #{id}
+    </select>
+
+    <select id="findGoalkeeperPerformanceIdByPenaltyShotId" resultType="java.lang.Long">
+        Select goalkeeper_performance_id from penalty_shots
+        where penalty_shot_id = #{id}
+    </select>
+
+    <select id="findShooterPerformanceIdByPenaltyShotId" resultType="java.lang.Long">
+        Select shooter_performance_id from penalty_shots
+        where penalty_shot_id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="PenaltyShotsResultMap">
+        <include refid="selectPenaltyShots"/>
+    </select>
+
+
+    <select id="findByGoalkeeperPerformanceId" resultMap="PenaltyShotsResultMap">
+        <include refid="selectPenaltyShots"/>
+        where penalty_shots.goalkeeper_performance_id = #{id}
+    </select>
+
+    <select id="findByShooterPerformanceId" resultMap="PenaltyShotsResultMap">
+        <include refid="selectPenaltyShots"/>
+        where penalty_shots.shooter_performance_id = #{id}
+    </select>
+
+    <select id="findByRelatedPerformanceId" resultMap="PenaltyShotsResultMap">
+        <include refid="selectPenaltyShots"/>
+        where penalty_shots.goalkeeper_performance_id = #{id}
+        or penalty_shots.shooter_performance_id = #{id}
+    </select>
+
+    <resultMap id="PenaltyShotsResultMap" type="com.solvd.laba.football.domain.PenaltyShot" autoMapping="false">
+        <id column="penalty_shot_id" property="id"/>
+        <result column="game_time" property="gameTime"/>
+        <association property="outcome"
+                     resultMap="com.solvd.laba.football.persistence.ShootOutcomeRepository.ShootOutcomeResultMap"
+                     columnPrefix="outcome_"/>
+    </resultMap>
+</mapper>

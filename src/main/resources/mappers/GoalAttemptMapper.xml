@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.laba.football.persistence.GoalAttemptRepository">
+    <insert id="create" keyColumn="id" keyProperty="goalAttempt.id" useGeneratedKeys="true">
+        Insert into goal_attempts (defender_performance_id, attacker_performance_id, outcome_id, game_time)
+        values (#{defenderPerformanceId}, #{attackerPerformanceId}, #{goalAttempt.outcome.id}, #{goalAttempt.gameTime})
+    </insert>
+
+    <update id="update">
+        Update goal_attempts
+        set
+        defender_performance_id = #{defenderPerformanceId},
+        attacker_performance_id = #{attackerPerformanceId},
+        outcome_id = #{goalAttempt.outcome.id},
+        game_time = #{goalAttempt.gameTime}
+        where id=#{id}
+    </update>
+
+    <delete id="delete">
+        delete from goal_attempts where id=#{id}
+    </delete>
+
+    <sql id="selectGoalAttempts">
+        Select
+        goal_attempts.id as goal_attempt_id,
+        shoot_outcomes.id as outcome_id,
+        shoot_outcomes.name as outcome_name,
+        game_time
+        from goal_attempts
+        Left Join shoot_outcomes on goal_attempts.outcome_id = shoot_outcomes.id
+    </sql>
+
+    <select id="findById" resultMap="GoalAttemptsResultMap">
+        <include refid="selectGoalAttempts"/>
+        where goal_attempt_id = #{id}
+    </select>
+
+    <select id="findDefenderPerformanceIdByGoalAttemptId" resultType="java.lang.Long">
+        Select defender_performance_id from goal_attempts
+        where goal_attempt_id = #{id}
+    </select>
+
+    <select id="findAttackerPerformanceIdByGoalAttemptId" resultType="java.lang.Long">
+        Select attacker_performance_id from goal_attempts
+        where goal_attempt_id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="GoalAttemptsResultMap">
+        <include refid="selectGoalAttempts"/>
+    </select>
+
+
+    <select id="findByDefenderPerformanceId" resultMap="GoalAttemptsResultMap">
+        <include refid="selectGoalAttempts"/>
+        where goal_attempts.defender_performance_id = #{id}
+    </select>
+
+    <select id="findByAttackerPerformanceId" resultMap="GoalAttemptsResultMap">
+        <include refid="selectGoalAttempts"/>
+        where goal_attempts.attacker_performance_id = #{id}
+    </select>
+
+    <select id="findByRelatedPerformanceId" resultMap="GoalAttemptsResultMap">
+        <include refid="selectGoalAttempts"/>
+        where goal_attempts.defender_performance_id = #{id}
+        or goal_attempts.attacker_performance_id = #{id}
+    </select>
+
+    <resultMap id="GoalAttemptsResultMap" type="com.solvd.laba.football.domain.GoalAttempt" autoMapping="false">
+        <id column="goal_attempt_id" property="id"/>
+        <result column="game_time" property="gameTime"/>
+        <association property="outcome"
+                     resultMap="com.solvd.laba.football.persistence.ShootOutcomeRepository.ShootOutcomeResultMap"
+                     columnPrefix="outcome_"/>
+    </resultMap>
+</mapper>

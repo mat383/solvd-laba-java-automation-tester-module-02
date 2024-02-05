@@ -1,15 +1,20 @@
 package com.solvd.laba.football.persistence;
 
 import com.solvd.laba.football.domain.GoalAttempt;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface GoalAttemptRepository {
 
-    void create(GoalAttempt goalAttempt, long defenderPerformanceId, long attackerPerformanceId);
+    void create(@Param("goalAttempt") GoalAttempt goalAttempt,
+                @Param("defenderPerformanceId") long defenderPerformanceId,
+                @Param("attackerPerformanceId") long attackerPerformanceId);
 
-    void update(GoalAttempt goalAttempt, long defenderPerformanceId, long attackerPerformanceId);
+    void update(@Param("goalAttempt") GoalAttempt goalAttempt,
+                @Param("defenderPerformanceId") long defenderPerformanceId,
+                @Param("attackerPerformanceId") long attackerPerformanceId);
 
     void delete(GoalAttempt goalAttempt);
 

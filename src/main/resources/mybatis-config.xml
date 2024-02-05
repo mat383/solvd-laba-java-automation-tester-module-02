@@ -17,5 +17,9 @@
     </environments>
     <mappers>
         <mapper resource="mappers/PositionMapper.xml"/>
+        <mapper resource="mappers/PersonMapper.xml"/>
+        <mapper resource="mappers/ShootOutcomeMapper.xml"/>
+        <mapper resource="mappers/PenaltyShootMapper.xml"/>
+        <mapper resource="mappers/GoalAttemptMapper.xml"/>
     </mappers>
 </configuration>

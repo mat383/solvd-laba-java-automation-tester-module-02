@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.laba.football.persistence.ShootOutcomeRepository">
+    <insert id="create" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+        Insert into shoot_outcomes (name) values (#{name})
+    </insert>
+
+    <update id="update">
+        Update shoot_outcomes set name=#{name} where id=#{id}
+    </update>
+
+    <delete id="delete">
+        delete from shoot_outcomes where id=#{id}
+    </delete>
+
+    <sql id="selectShotOutcomes">
+        Select id, name from shoot_outcomes
+    </sql>
+
+    <select id="findById" resultMap="ShootOutcomeResultMap">
+        <include refid="selectShotOutcomes"/>
+        where id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="ShootOutcomeResultMap">
+        <include refid="selectShotOutcomes"/>
+    </select>
+
+    <resultMap id="ShootOutcomeResultMap" type="com.solvd.laba.football.domain.ShootOutcome" autoMapping="false">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+    </resultMap>
+</mapper>

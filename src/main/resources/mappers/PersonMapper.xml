@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.laba.football.persistence.PersonRepository">
+    <insert id="create" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+        Insert into people (first_name, last_name, birth_date) values (#{firstName}, #{lastName}, #{birthDate})
+    </insert>
+
+    <update id="update">
+        Update people set first_name=#{firstName}, last_name=#{lastName}, birth_date=#{birthDate} where id=#{id}
+    </update>
+
+    <delete id="delete">
+        delete from people where id=#{id}
+    </delete>
+
+    <sql id="selectPeople">
+        Select id, first_name, last_name, birth_date from people
+    </sql>
+
+    <select id="findById" resultMap="PeopleResultMap">
+        <include refid="selectPeople"/>
+        where id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="PeopleResultMap">
+        <include refid="selectPeople"/>
+    </select>
+
+    <resultMap id="PeopleResultMap" type="com.solvd.laba.football.domain.Person" autoMapping="false">
+        <id column="id" property="id"/>
+        <result column="first_name" property="firstName"/>
+        <result column="last_name" property="lastName"/>
+        <result column="birth_date" property="birthDate"/>
+    </resultMap>
+</mapper>
