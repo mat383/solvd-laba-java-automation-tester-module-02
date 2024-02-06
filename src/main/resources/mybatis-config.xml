@@ -21,5 +21,6 @@
         <mapper resource="mappers/ShootOutcomeMapper.xml"/>
         <mapper resource="mappers/PenaltyShootMapper.xml"/>
         <mapper resource="mappers/GoalAttemptMapper.xml"/>
+        <mapper resource="mappers/PlayerPerformanceMapper.xml"/>
     </mappers>
 </configuration>

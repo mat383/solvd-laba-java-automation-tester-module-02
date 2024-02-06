@@ -20,16 +20,16 @@
         Select id, first_name, last_name, birth_date from people
     </sql>
 
-    <select id="findById" resultMap="PeopleResultMap">
+    <select id="findById" resultMap="PersonResultMap">
         <include refid="selectPeople"/>
         where id = #{id}
     </select>
 
-    <select id="findAll" resultMap="PeopleResultMap">
+    <select id="findAll" resultMap="PersonResultMap">
         <include refid="selectPeople"/>
     </select>
 
-    <resultMap id="PeopleResultMap" type="com.solvd.laba.football.domain.Person" autoMapping="false">
+    <resultMap id="PersonResultMap" type="com.solvd.laba.football.domain.Person" autoMapping="false">
         <id column="id" property="id"/>
         <result column="first_name" property="firstName"/>
         <result column="last_name" property="lastName"/>

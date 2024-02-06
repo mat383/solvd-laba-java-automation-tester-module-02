@@ -1,7 +1,10 @@
 package com.solvd.laba.football.domain;
 
 import com.solvd.laba.football.domain.interfaces.Identifiable;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -11,7 +14,6 @@ import java.util.stream.Stream;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class PlayerPerformance implements Identifiable {
     @Setter(AccessLevel.NONE)
     private Long id;
@@ -24,11 +26,11 @@ public class PlayerPerformance implements Identifiable {
     private Double cooperativePerformance;
     private LocalTime start;
     private LocalTime end;
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
+    //@Getter(AccessLevel.NONE)
+    //@Setter(AccessLevel.NONE)
     private List<PenaltyShot> penaltyShotsAsShooter = new ArrayList<>();
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
+    //@Getter(AccessLevel.NONE)
+    //@Setter(AccessLevel.NONE)
     private List<PenaltyShot> penaltyShotsAsGoalkeeper = new ArrayList<>();
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
@@ -36,6 +38,13 @@ public class PlayerPerformance implements Identifiable {
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private List<GoalAttempt> goalAttemptsAsDefender = new ArrayList<>();
+
+    public PlayerPerformance() {
+        this.game = new Game();
+        this.team = new Team();
+        this.player = new Player();
+        this.position = new Position();
+    }
 
     public PlayerPerformance(Long id, Game game, Team team, Player player, Position position,
                              Double defensivePerformance, Double offensivePerformance, Double cooperativePerformance,
@@ -68,9 +77,9 @@ public class PlayerPerformance implements Identifiable {
                 .toList();
     }
 
-    public List<PenaltyShot> getPenaltyShotsAsShooter() {
-        return Collections.unmodifiableList(this.penaltyShotsAsShooter);
-    }
+    //public List<PenaltyShot> getPenaltyShotsAsShooter() {
+    //    return Collections.unmodifiableList(this.penaltyShotsAsShooter);
+    //}
 
     /**
      * checks this player performance participated in
@@ -87,9 +96,9 @@ public class PlayerPerformance implements Identifiable {
         return this.penaltyShotsAsShooter.contains(penaltyShot);
     }
 
-    public List<PenaltyShot> getPenaltyShotsAsGoalkeeper() {
-        return Collections.unmodifiableList(this.penaltyShotsAsGoalkeeper);
-    }
+    //public List<PenaltyShot> getPenaltyShotsAsGoalkeeper() {
+    //    return Collections.unmodifiableList(this.penaltyShotsAsGoalkeeper);
+    //}
 
     /**
      * checks this player performance participated in

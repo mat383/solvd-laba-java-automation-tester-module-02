@@ -8,7 +8,6 @@ import com.solvd.laba.football.persistence.impl.mybatis.*;
 import com.solvd.laba.football.service.*;
 import com.solvd.laba.football.service.impl.*;
 
-import java.time.LocalTime;
 import java.util.List;
 
 public class Main {
@@ -58,6 +57,7 @@ public class Main {
         ShootOutcomeRepository myBatisShootOutcomeRepository = new ShootOutcomeRepositoryMyBatis();
         PenaltyShotRepository myBatisPenaltyShootRepository = new PenaltyShotRepositoryMyBatis();
         GoalAttemptRepository myBatisGoalAttemptRepository = new GoalAttemptRepositoryMyBatis();
+        PlayerPerformanceRepository myBatisPlayerPerformanceRepository = new PlayerPerformanceRepositoryMyBatis();
 
         System.out.println("-- positions");
         for (Position position : myBatisPositionRepository.findAll()) {
@@ -83,16 +83,23 @@ public class Main {
 
         System.out.println("-- goal attempt");
         for (GoalAttempt goalAttempt : myBatisGoalAttemptRepository.findAll()) {
-            System.out.printf("- (%d) %s - (%s) %s\n",
+            System.out.printf("- (%d) %s - (%s) %s [%s]\n",
                     goalAttempt.getId(),
                     goalAttempt.getGameTime(),
                     goalAttempt.getOutcome().getId(),
-                    goalAttempt.getOutcome().getName());
+                    goalAttempt.getOutcome().getName(),
+                    goalAttempt.getOutcome().toString());
         }
 
-        ShootOutcome shootOutcome = new ShootOutcome(4L, "Unknown");
-        GoalAttempt goalAttempt = new GoalAttempt(null, shootOutcome, LocalTime.of(0, 40));
-        myBatisGoalAttemptRepository.create(goalAttempt, 24, 40);
-        System.out.println(goalAttempt.getId());
+        // TODO check if positions are cached and point to the same object
+
+        System.out.println("-- player performance");
+        for (PlayerPerformance playerPerformance : myBatisPlayerPerformanceRepository.findAll()) {
+            System.out.printf("- (%d) %.2f %.2f %.2f\n",
+                    playerPerformance.getId(),
+                    playerPerformance.getDefensivePerformance(),
+                    playerPerformance.getOffensivePerformance(),
+                    playerPerformance.getCooperativePerformance());
+        }
     }
 }

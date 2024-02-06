@@ -33,7 +33,7 @@
         Left Join shoot_outcomes on penalty_shots.outcome_id = shoot_outcomes.id
     </sql>
 
-    <select id="findById" resultMap="PenaltyShotsResultMap">
+    <select id="findById" resultMap="PenaltyShotResultMap">
         <include refid="selectPenaltyShots"/>
         where penalty_shot_id = #{id}
     </select>
@@ -48,28 +48,28 @@
         where penalty_shot_id = #{id}
     </select>
 
-    <select id="findAll" resultMap="PenaltyShotsResultMap">
+    <select id="findAll" resultMap="PenaltyShotResultMap">
         <include refid="selectPenaltyShots"/>
     </select>
 
 
-    <select id="findByGoalkeeperPerformanceId" resultMap="PenaltyShotsResultMap">
+    <select id="findByGoalkeeperPerformanceId" resultMap="PenaltyShotResultMap">
         <include refid="selectPenaltyShots"/>
         where penalty_shots.goalkeeper_performance_id = #{id}
     </select>
 
-    <select id="findByShooterPerformanceId" resultMap="PenaltyShotsResultMap">
+    <select id="findByShooterPerformanceId" resultMap="PenaltyShotResultMap">
         <include refid="selectPenaltyShots"/>
         where penalty_shots.shooter_performance_id = #{id}
     </select>
 
-    <select id="findByRelatedPerformanceId" resultMap="PenaltyShotsResultMap">
+    <select id="findByRelatedPerformanceId" resultMap="PenaltyShotResultMap">
         <include refid="selectPenaltyShots"/>
         where penalty_shots.goalkeeper_performance_id = #{id}
         or penalty_shots.shooter_performance_id = #{id}
     </select>
 
-    <resultMap id="PenaltyShotsResultMap" type="com.solvd.laba.football.domain.PenaltyShot" autoMapping="false">
+    <resultMap id="PenaltyShotResultMap" type="com.solvd.laba.football.domain.PenaltyShot" autoMapping="false">
         <id column="penalty_shot_id" property="id"/>
         <result column="game_time" property="gameTime"/>
         <association property="outcome"

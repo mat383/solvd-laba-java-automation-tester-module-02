@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solvd.laba.football.persistence.PlayerPerformanceRepository">
+    <insert id="create" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+        Insert into player_performances
+        (player_id, position_id, game_id, team_id,
+        defensive_performance, offensive_performance, cooperative_performance,
+        performance_start, performance_end)
+        values
+        (#{player.id}, #{position.id}, #{game.id},#{team.id},
+        #{defensivePerformance}, #{offensivePerformance}, #{cooperativePerformance},
+        #{start}, #{end})
+    </insert>
+
+    <update id="update">
+        Update player_performances
+        set
+        player_id = #{player.id},
+        position_id = #{position.id},
+        game_id = #{game.id},
+        team_id = #{team.id},
+        defensive_performance = #{defensivePerformance},
+        offensive_performance = #{offensivePerformance},
+        cooperative_performance = #{cooperativePerformance},
+        performance_start = #{start},
+        performance_end = #{end}
+        where id=#{id}
+    </update>
+
+    <delete id="delete">
+        delete from player_performances where id=#{id}
+    </delete>
+
+    <sql id="selectPlayerPerformances">
+        Select
+        players_performances.id as player_performance_id,
+        positions.id as position_id,
+        positions.name as position_name,
+        defensive_performance,
+        offensive_performance,
+        cooperative_performance,
+        performance_start,
+        performance_end,
+
+        shots_as_goalkeeper.id as shot_as_goalkeeper_id,
+        shots_as_goalkeeper.game_time as shot_as_goalkeeper_game_time,
+        goalkeeper_outcomes.id as shot_as_goalkeeper_outcome_id,
+        goalkeeper_outcomes.name as shot_as_goalkeeper_outcome_name,
+
+        shots_as_shooter.id as shot_as_shooter_id,
+        shots_as_shooter.game_time as shot_as_shooter_game_time,
+        shooter_outcomes.id as shot_as_shooter_outcome_id,
+        shooter_outcomes.name as shot_as_shooter_outcome_name
+
+        from
+        players_performances
+
+        left join positions on players_performances.position_id = positions.id
+
+        left join penalty_shots as shots_as_goalkeeper
+        on players_performances.id = shots_as_goalkeeper.goalkeeper_performance_id
+        left join shoot_outcomes as goalkeeper_outcomes
+        on shots_as_goalkeeper.outcome_id = goalkeeper_outcomes.id
+
+        left join penalty_shots as shots_as_shooter
+        on players_performances.id = shots_as_shooter.shooter_performance_id
+        left join shoot_outcomes as shooter_outcomes
+        on shots_as_shooter.outcome_id = shooter_outcomes.id
+    </sql>
+
+    <select id="findById" resultMap="PlayerPerformanceResultMap">
+        <include refid="selectPlayerPerformances"/>
+        where id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="PlayerPerformanceResultMap">
+        <include refid="selectPlayerPerformances"/>
+    </select>
+
+    <select id="findByPlayerId" resultMap="PlayerPerformanceResultMap">
+        <include refid="selectPlayerPerformances"/>
+        where player_performances.player_id = #{id};
+    </select>
+
+    <select id="findByGameId" resultMap="PlayerPerformanceResultMap">
+        <include refid="selectPlayerPerformances"/>
+        where player_performances.game_id = #{id};
+    </select>
+
+    <resultMap id="PlayerPerformanceResultMap"
+               type="com.solvd.laba.football.domain.PlayerPerformance"
+               autoMapping="false">
+        <id column="player_performance_id" property="id"/>
+        <result column="defensive_performance" property="defensivePerformance"/>
+        <result column="offensive_performance" property="offensivePerformance"/>
+        <result column="cooperative_performance" property="cooperativePerformance"/>
+        <result column="performance_start" property="start"/>
+        <result column="performance_end" property="end"/>
+        <association property="position"
+                     resultMap="com.solvd.laba.football.persistence.PositionRepository.PositionResultMap"
+                     columnPrefix="position"/>
+        <collection property="penaltyShotsAsGoalkeeper"
+                    resultMap="com.solvd.laba.football.persistence.PenaltyShotRepository.PenaltyShotResultMap"
+                    columnPrefix="shot_as_goalkeeper_"
+                    notNullColumn="id"
+                    ofType="com.solvd.laba.football.domain.PenaltyShot"/>
+        <collection property="penaltyShotsAsShooter"
+                    resultMap="com.solvd.laba.football.persistence.PenaltyShotRepository.PenaltyShotResultMap"
+                    columnPrefix="shot_as_shooter_"
+                    notNullColumn="id"
+                    ofType="com.solvd.laba.football.domain.PenaltyShot"/>
+    </resultMap>
+</mapper>
