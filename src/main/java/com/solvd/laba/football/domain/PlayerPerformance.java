@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -26,17 +25,9 @@ public class PlayerPerformance implements Identifiable {
     private Double cooperativePerformance;
     private LocalTime start;
     private LocalTime end;
-    //@Getter(AccessLevel.NONE)
-    //@Setter(AccessLevel.NONE)
     private List<PenaltyShot> penaltyShotsAsShooter = new ArrayList<>();
-    //@Getter(AccessLevel.NONE)
-    //@Setter(AccessLevel.NONE)
     private List<PenaltyShot> penaltyShotsAsGoalkeeper = new ArrayList<>();
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
     private List<GoalAttempt> goalAttemptsAsAttacker = new ArrayList<>();
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
     private List<GoalAttempt> goalAttemptsAsDefender = new ArrayList<>();
 
     public PlayerPerformance() {
@@ -77,10 +68,6 @@ public class PlayerPerformance implements Identifiable {
                 .toList();
     }
 
-    //public List<PenaltyShot> getPenaltyShotsAsShooter() {
-    //    return Collections.unmodifiableList(this.penaltyShotsAsShooter);
-    //}
-
     /**
      * checks this player performance participated in
      * penalty shoot as shooter
@@ -95,10 +82,6 @@ public class PlayerPerformance implements Identifiable {
         }
         return this.penaltyShotsAsShooter.contains(penaltyShot);
     }
-
-    //public List<PenaltyShot> getPenaltyShotsAsGoalkeeper() {
-    //    return Collections.unmodifiableList(this.penaltyShotsAsGoalkeeper);
-    //}
 
     /**
      * checks this player performance participated in
@@ -141,10 +124,6 @@ public class PlayerPerformance implements Identifiable {
                 .toList();
     }
 
-    public List<GoalAttempt> getGoalAttemptsAsAttacker() {
-        return Collections.unmodifiableList(this.goalAttemptsAsAttacker);
-    }
-
     /**
      * checks this player performance participated in
      * goal attempt as attacker
@@ -159,11 +138,6 @@ public class PlayerPerformance implements Identifiable {
         }
         return this.goalAttemptsAsAttacker.contains(goalAttempt);
     }
-
-    public List<GoalAttempt> getGoalAttemptsAsDefender() {
-        return Collections.unmodifiableList(this.goalAttemptsAsDefender);
-    }
-
 
     /**
      * checks this player performance participated in

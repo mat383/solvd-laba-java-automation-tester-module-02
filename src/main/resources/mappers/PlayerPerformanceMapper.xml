@@ -37,23 +37,36 @@
     <sql id="selectPlayerPerformances">
         Select
         players_performances.id as player_performance_id,
+        players_performances.player_id as player_performance_player_id,
         positions.id as position_id,
         positions.name as position_name,
+        players_performances.game_id as player_performance_game_id,
+        players_performances.team_id as player_performance_team_id,
         defensive_performance,
         offensive_performance,
         cooperative_performance,
         performance_start,
         performance_end,
 
-        shots_as_goalkeeper.id as shot_as_goalkeeper_id,
+        shots_as_goalkeeper.id as shot_as_goalkeeper_penalty_shot_id,
         shots_as_goalkeeper.game_time as shot_as_goalkeeper_game_time,
         goalkeeper_outcomes.id as shot_as_goalkeeper_outcome_id,
         goalkeeper_outcomes.name as shot_as_goalkeeper_outcome_name,
 
-        shots_as_shooter.id as shot_as_shooter_id,
+        shots_as_shooter.id as shot_as_shooter_penalty_shot_id,
         shots_as_shooter.game_time as shot_as_shooter_game_time,
         shooter_outcomes.id as shot_as_shooter_outcome_id,
-        shooter_outcomes.name as shot_as_shooter_outcome_name
+        shooter_outcomes.name as shot_as_shooter_outcome_name,
+
+        attempts_as_defender.id as attempt_as_defender_goal_attempt_id,
+        attempts_as_defender.game_time as attempt_as_defender_game_time,
+        defender_outcomes.id as attempt_as_defender_outcome_id,
+        defender_outcomes.name as attempt_as_defender_outcome_name,
+
+        attempts_as_attacker.id as attempt_as_attacker_goal_attempt_id,
+        attempts_as_attacker.game_time as attempt_as_attacker_game_time,
+        attacker_outcomes.id as attempt_as_attacker_outcome_id,
+        attacker_outcomes.name as attempt_as_attacker_outcome_name
 
         from
         players_performances
@@ -69,6 +82,16 @@
         on players_performances.id = shots_as_shooter.shooter_performance_id
         left join shoot_outcomes as shooter_outcomes
         on shots_as_shooter.outcome_id = shooter_outcomes.id
+
+        left join goal_attempts as attempts_as_defender
+        on players_performances.id = attempts_as_defender.defender_performance_id
+        left join shoot_outcomes as defender_outcomes
+        on attempts_as_defender.outcome_id = defender_outcomes.id
+
+        left join goal_attempts as attempts_as_attacker
+        on players_performances.id = attempts_as_attacker.attacker_performance_id
+        left join shoot_outcomes as attacker_outcomes
+        on attempts_as_attacker.outcome_id = attacker_outcomes.id
     </sql>
 
     <select id="findById" resultMap="PlayerPerformanceResultMap">
@@ -94,6 +117,9 @@
                type="com.solvd.laba.football.domain.PlayerPerformance"
                autoMapping="false">
         <id column="player_performance_id" property="id"/>
+        <result column="player_performance_player_id" property="player.id"/>
+        <result column="player_performance_game_id" property="game.id"/>
+        <result column="player_performance_team_id" property="team.id"/>
         <result column="defensive_performance" property="defensivePerformance"/>
         <result column="offensive_performance" property="offensivePerformance"/>
         <result column="cooperative_performance" property="cooperativePerformance"/>
@@ -105,12 +131,22 @@
         <collection property="penaltyShotsAsGoalkeeper"
                     resultMap="com.solvd.laba.football.persistence.PenaltyShotRepository.PenaltyShotResultMap"
                     columnPrefix="shot_as_goalkeeper_"
-                    notNullColumn="id"
+                    notNullColumn="penalty_shot_id"
                     ofType="com.solvd.laba.football.domain.PenaltyShot"/>
         <collection property="penaltyShotsAsShooter"
                     resultMap="com.solvd.laba.football.persistence.PenaltyShotRepository.PenaltyShotResultMap"
                     columnPrefix="shot_as_shooter_"
-                    notNullColumn="id"
+                    notNullColumn="penalty_shot_id"
                     ofType="com.solvd.laba.football.domain.PenaltyShot"/>
+        <collection property="goalAttemptsAsDefender"
+                    resultMap="com.solvd.laba.football.persistence.GoalAttemptRepository.GoalAttemptResultMap"
+                    columnPrefix="attempt_as_defender_"
+                    notNullColumn="goal_attempt_id"
+                    ofType="com.solvd.laba.football.domain.GoalAttempt"/>
+        <collection property="goalAttemptsAsAttacker"
+                    resultMap="com.solvd.laba.football.persistence.GoalAttemptRepository.GoalAttemptResultMap"
+                    columnPrefix="attempt_as_attacker_"
+                    notNullColumn="goal_attempt_id"
+                    ofType="com.solvd.laba.football.domain.GoalAttempt"/>
     </resultMap>
 </mapper>

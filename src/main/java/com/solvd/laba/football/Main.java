@@ -95,11 +95,39 @@ public class Main {
 
         System.out.println("-- player performance");
         for (PlayerPerformance playerPerformance : myBatisPlayerPerformanceRepository.findAll()) {
-            System.out.printf("- (%d) %.2f %.2f %.2f\n",
+            System.out.printf("- (%d) %.2f %.2f %.2f %d -> %d\n",
                     playerPerformance.getId(),
                     playerPerformance.getDefensivePerformance(),
                     playerPerformance.getOffensivePerformance(),
-                    playerPerformance.getCooperativePerformance());
+                    playerPerformance.getCooperativePerformance(),
+                    playerPerformance.getTeam().getId(),
+                    playerPerformance.getPlayer().getId());
+            System.out.println("  Penalty shots:");
+            for (PenaltyShot penaltyShot : playerPerformance.getAllPenaltyShots()) {
+                System.out.printf("  - (%d) %s [%s]\n", penaltyShot.getId(), penaltyShot.getOutcome().getName(), penaltyShot.toString());
+            }
+            System.out.println("  Goal attempts");
+            for (GoalAttempt goalAttempt : playerPerformance.getAllGoalAttempts()) {
+                System.out.printf("  - (%d) %s [%s]\n", goalAttempt.getId(), goalAttempt.getOutcome().getName(), goalAttempt.toString());
+            }
+        }
+
+
+        System.out.println("-- penalty shoot 30");
+        for (PenaltyShot penaltyShot : myBatisPenaltyShootRepository.findByRelatedPerformanceId(30)) {
+            System.out.printf("- (%d) %s - (%s) %s\n",
+                    penaltyShot.getId(),
+                    penaltyShot.getGameTime(),
+                    penaltyShot.getOutcome().getId(),
+                    penaltyShot.getOutcome().getName());
+        }
+        System.out.println("-- goal attempt 30");
+        for (GoalAttempt goalAttempt : myBatisGoalAttemptRepository.findByRelatedPerformanceId(30)) {
+            System.out.printf("- (%d) %s - (%s) %s\n",
+                    goalAttempt.getId(),
+                    goalAttempt.getGameTime(),
+                    goalAttempt.getOutcome().getId(),
+                    goalAttempt.getOutcome().getName());
         }
     }
 }
