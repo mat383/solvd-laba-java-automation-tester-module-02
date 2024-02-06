@@ -1,4 +1,4 @@
-package com.solvd.laba.football.service.impl;
+package com.solvd.laba.football.service.impl.jdbc;
 
 import com.solvd.laba.football.domain.GoalAttempt;
 import com.solvd.laba.football.persistence.GoalAttemptRepository;
@@ -7,10 +7,10 @@ import com.solvd.laba.football.service.GoalAttemptService;
 import java.util.List;
 import java.util.Optional;
 
-public class GoalAttemptServiceImpl implements GoalAttemptService {
+public class GoalAttemptServiceJdbc implements GoalAttemptService {
     private final GoalAttemptRepository goalAttemptRepository;
 
-    public GoalAttemptServiceImpl(GoalAttemptRepository goalAttemptRepository) {
+    public GoalAttemptServiceJdbc(GoalAttemptRepository goalAttemptRepository) {
         this.goalAttemptRepository = goalAttemptRepository;
     }
 

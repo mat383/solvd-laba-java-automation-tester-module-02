@@ -1,4 +1,4 @@
-package com.solvd.laba.football.service.impl;
+package com.solvd.laba.football.service.impl.jdbc;
 
 import com.solvd.laba.football.domain.Position;
 import com.solvd.laba.football.persistence.PositionRepository;
@@ -8,11 +8,11 @@ import lombok.NonNull;
 import java.util.List;
 import java.util.Optional;
 
-public class PositionServiceImpl implements PositionService {
+public class PositionServiceJdbc implements PositionService {
     @NonNull
     private final PositionRepository positionRepository;
 
-    public PositionServiceImpl(@NonNull PositionRepository positionRepository) {
+    public PositionServiceJdbc(@NonNull PositionRepository positionRepository) {
         this.positionRepository = positionRepository;
     }
 

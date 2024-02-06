@@ -1,4 +1,4 @@
-package com.solvd.laba.football.service.impl;
+package com.solvd.laba.football.service.impl.jdbc;
 
 import com.solvd.laba.football.domain.Person;
 import com.solvd.laba.football.domain.Player;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @AllArgsConstructor
-public class PlayerServiceImpl implements PlayerService {
+public class PlayerServiceJdbc implements PlayerService {
     @NonNull
     private final PlayerRepository playerRepository;
     @NonNull

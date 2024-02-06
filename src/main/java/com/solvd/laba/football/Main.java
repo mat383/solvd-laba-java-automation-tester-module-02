@@ -1,12 +1,11 @@
 package com.solvd.laba.football;
 
 
-import com.solvd.laba.football.domain.*;
-import com.solvd.laba.football.persistence.*;
+import com.solvd.laba.football.domain.Team;
+import com.solvd.laba.football.persistence.RepositoryFactory;
 import com.solvd.laba.football.persistence.impl.jdbc.RepositoryFactoryJDBC;
-import com.solvd.laba.football.persistence.impl.mybatis.*;
 import com.solvd.laba.football.service.*;
-import com.solvd.laba.football.service.impl.*;
+import com.solvd.laba.football.service.impl.jdbc.*;
 
 import java.util.List;
 
@@ -14,120 +13,40 @@ public class Main {
     public static void main(String[] args) {
         RepositoryFactory repositoryFactory = new RepositoryFactoryJDBC();
 
-        PersonService personService = new PersonServiceImpl(
+        PersonService personService = new PersonServiceJdbc(
                 repositoryFactory.createPersonRepository());
 
-        PositionService positionService = new PositionServiceImpl(
+        PositionService positionService = new PositionServiceJdbc(
                 repositoryFactory.createPositionRepository());
 
-        ShootOutcomeService shootOutcomeService = new ShootOutcomeServiceImpl(
+        ShootOutcomeService shootOutcomeService = new ShootOutcomeServiceJdbc(
                 repositoryFactory.createShootOutcomeRepository());
 
-        GoalAttemptService goalAttemptService = new GoalAttemptServiceImpl(
+        GoalAttemptService goalAttemptService = new GoalAttemptServiceJdbc(
                 repositoryFactory.createGoalAttemptRepository());
 
-        PenaltyShootService penaltyShootService = new PenaltyShotServiceImpl(
+        PenaltyShootService penaltyShootService = new PenaltyShotServiceJdbc(
                 repositoryFactory.createPenaltyShotRepository());
 
-        PlayerPerformanceServiceImpl playerPerformanceService = new PlayerPerformanceServiceImpl(
+        PlayerPerformanceServiceJdbc playerPerformanceService = new PlayerPerformanceServiceJdbc(
                 repositoryFactory.createPlayerPerformanceRepository(),
                 goalAttemptService,
                 penaltyShootService,
                 positionService);
 
-        PlayerService playerService = new PlayerServiceImpl(
+        PlayerService playerService = new PlayerServiceJdbc(
                 repositoryFactory.createPlayerRepository(),
                 personService, playerPerformanceService, positionService);
 
-        TeamService teamService = new TeamServiceImpl(
+        TeamService teamService = new TeamServiceJdbc(
                 repositoryFactory.createTeamRepository(), playerService);
 
-        GameOutcomePredictorService gameOutcomePredictorService = new GameOutcomePredictorServiceImpl();
+        GameOutcomePredictorService gameOutcomePredictorService = new GameOutcomePredictorServiceJdbc();
 
         List<Team> teams = teamService.findAll();
 
         // predict outcome
         Team winner = gameOutcomePredictorService.predictGameWinner(teams.get(3), teams.get(1));
         System.out.println("winner is: " + winner.getName());
-
-
-        //mybatis test
-        PositionRepository myBatisPositionRepository = new PositionRepositoryMyBatis();
-        PersonRepository myBatisPersonRepository = new PersonRepositoryMyBatis();
-        ShootOutcomeRepository myBatisShootOutcomeRepository = new ShootOutcomeRepositoryMyBatis();
-        PenaltyShotRepository myBatisPenaltyShootRepository = new PenaltyShotRepositoryMyBatis();
-        GoalAttemptRepository myBatisGoalAttemptRepository = new GoalAttemptRepositoryMyBatis();
-        PlayerPerformanceRepository myBatisPlayerPerformanceRepository = new PlayerPerformanceRepositoryMyBatis();
-
-        System.out.println("-- positions");
-        for (Position position : myBatisPositionRepository.findAll()) {
-            System.out.printf("- (%d) %s\n", position.getId(), position.getName());
-        }
-        System.out.println("-- people");
-        for (Person person : myBatisPersonRepository.findAll()) {
-            System.out.printf("- (%d) %s %s (%s)\n", person.getId(), person.getFirstName(), person.getLastName(), person.getBirthDate().toString());
-        }
-        System.out.println("-- shoot outcome");
-        for (ShootOutcome shootOutcome : myBatisShootOutcomeRepository.findAll()) {
-            System.out.printf("- (%d) %s\n", shootOutcome.getId(), shootOutcome.getName());
-        }
-
-        System.out.println("-- penalty shoot");
-        for (PenaltyShot penaltyShot : myBatisPenaltyShootRepository.findAll()) {
-            System.out.printf("- (%d) %s - (%s) %s\n",
-                    penaltyShot.getId(),
-                    penaltyShot.getGameTime(),
-                    penaltyShot.getOutcome().getId(),
-                    penaltyShot.getOutcome().getName());
-        }
-
-        System.out.println("-- goal attempt");
-        for (GoalAttempt goalAttempt : myBatisGoalAttemptRepository.findAll()) {
-            System.out.printf("- (%d) %s - (%s) %s [%s]\n",
-                    goalAttempt.getId(),
-                    goalAttempt.getGameTime(),
-                    goalAttempt.getOutcome().getId(),
-                    goalAttempt.getOutcome().getName(),
-                    goalAttempt.getOutcome().toString());
-        }
-
-        // TODO check if positions are cached and point to the same object
-
-        System.out.println("-- player performance");
-        for (PlayerPerformance playerPerformance : myBatisPlayerPerformanceRepository.findAll()) {
-            System.out.printf("- (%d) %.2f %.2f %.2f %d -> %d\n",
-                    playerPerformance.getId(),
-                    playerPerformance.getDefensivePerformance(),
-                    playerPerformance.getOffensivePerformance(),
-                    playerPerformance.getCooperativePerformance(),
-                    playerPerformance.getTeam().getId(),
-                    playerPerformance.getPlayer().getId());
-            System.out.println("  Penalty shots:");
-            for (PenaltyShot penaltyShot : playerPerformance.getAllPenaltyShots()) {
-                System.out.printf("  - (%d) %s [%s]\n", penaltyShot.getId(), penaltyShot.getOutcome().getName(), penaltyShot.toString());
-            }
-            System.out.println("  Goal attempts");
-            for (GoalAttempt goalAttempt : playerPerformance.getAllGoalAttempts()) {
-                System.out.printf("  - (%d) %s [%s]\n", goalAttempt.getId(), goalAttempt.getOutcome().getName(), goalAttempt.toString());
-            }
-        }
-
-
-        System.out.println("-- penalty shoot 30");
-        for (PenaltyShot penaltyShot : myBatisPenaltyShootRepository.findByRelatedPerformanceId(30)) {
-            System.out.printf("- (%d) %s - (%s) %s\n",
-                    penaltyShot.getId(),
-                    penaltyShot.getGameTime(),
-                    penaltyShot.getOutcome().getId(),
-                    penaltyShot.getOutcome().getName());
-        }
-        System.out.println("-- goal attempt 30");
-        for (GoalAttempt goalAttempt : myBatisGoalAttemptRepository.findByRelatedPerformanceId(30)) {
-            System.out.printf("- (%d) %s - (%s) %s\n",
-                    goalAttempt.getId(),
-                    goalAttempt.getGameTime(),
-                    goalAttempt.getOutcome().getId(),
-                    goalAttempt.getOutcome().getName());
-        }
     }
 }

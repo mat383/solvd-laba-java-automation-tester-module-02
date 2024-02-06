@@ -1,4 +1,4 @@
-package com.solvd.laba.football.service.impl;
+package com.solvd.laba.football.service.impl.jdbc;
 
 import com.solvd.laba.football.domain.ShootOutcome;
 import com.solvd.laba.football.persistence.ShootOutcomeRepository;
@@ -8,11 +8,11 @@ import lombok.NonNull;
 import java.util.List;
 import java.util.Optional;
 
-public class ShootOutcomeServiceImpl implements ShootOutcomeService {
+public class ShootOutcomeServiceJdbc implements ShootOutcomeService {
     @NonNull
     private final ShootOutcomeRepository shootOutcomeRepository;
 
-    public ShootOutcomeServiceImpl(@NonNull ShootOutcomeRepository shootOutcomeRepository) {
+    public ShootOutcomeServiceJdbc(@NonNull ShootOutcomeRepository shootOutcomeRepository) {
         this.shootOutcomeRepository = shootOutcomeRepository;
     }
 

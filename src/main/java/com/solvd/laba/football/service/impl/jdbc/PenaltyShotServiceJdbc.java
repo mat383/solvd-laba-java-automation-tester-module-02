@@ -1,4 +1,4 @@
-package com.solvd.laba.football.service.impl;
+package com.solvd.laba.football.service.impl.jdbc;
 
 import com.solvd.laba.football.domain.PenaltyShot;
 import com.solvd.laba.football.persistence.PenaltyShotRepository;
@@ -7,10 +7,10 @@ import com.solvd.laba.football.service.PenaltyShootService;
 import java.util.List;
 import java.util.Optional;
 
-public class PenaltyShotServiceImpl implements PenaltyShootService {
+public class PenaltyShotServiceJdbc implements PenaltyShootService {
     private final PenaltyShotRepository penaltyShotRepository;
 
-    public PenaltyShotServiceImpl(PenaltyShotRepository penaltyShotRepository) {
+    public PenaltyShotServiceJdbc(PenaltyShotRepository penaltyShotRepository) {
         this.penaltyShotRepository = penaltyShotRepository;
     }
 

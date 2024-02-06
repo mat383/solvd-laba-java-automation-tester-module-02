@@ -1,4 +1,4 @@
-package com.solvd.laba.football.service.impl;
+package com.solvd.laba.football.service.impl.jdbc;
 
 import com.solvd.laba.football.domain.Player;
 import com.solvd.laba.football.domain.PlayerPerformance;
@@ -9,7 +9,7 @@ import java.util.List;
 
 import static java.util.Collections.max;
 
-public class GameOutcomePredictorServiceImpl implements GameOutcomePredictorService {
+public class GameOutcomePredictorServiceJdbc implements GameOutcomePredictorService {
     @Override
     public Team predictGameWinner(Team teamA, Team teamB) {
         double teamAScore = calculateTeamScore(teamA);

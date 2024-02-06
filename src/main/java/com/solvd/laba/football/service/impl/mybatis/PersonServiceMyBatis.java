@@ -1,18 +1,14 @@
-package com.solvd.laba.football.service.impl;
+package com.solvd.laba.football.service.impl.mybatis;
 
 import com.solvd.laba.football.domain.Person;
-import com.solvd.laba.football.persistence.PersonRepository;
+import com.solvd.laba.football.persistence.impl.mybatis.PersonRepositoryMyBatis;
 import com.solvd.laba.football.service.PersonService;
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
 
 import java.util.List;
 import java.util.Optional;
 
-@AllArgsConstructor
-public class PersonServiceImpl implements PersonService {
-    @NonNull
-    private final PersonRepository personRepository;
+public class PersonServiceMyBatis implements PersonService {
+    private final PersonRepositoryMyBatis personRepository = new PersonRepositoryMyBatis();
 
     @Override
     public void create(Person person) {

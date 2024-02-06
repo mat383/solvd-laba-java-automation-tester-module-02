@@ -1,4 +1,4 @@
-package com.solvd.laba.football.service.impl;
+package com.solvd.laba.football.service.impl.jdbc;
 
 import com.solvd.laba.football.domain.GoalAttempt;
 import com.solvd.laba.football.domain.PenaltyShot;
@@ -15,15 +15,15 @@ import org.apache.logging.log4j.Logger;
 import java.util.List;
 import java.util.Optional;
 
-public class PlayerPerformanceServiceImpl implements PlayerPerformanceService {
-    private static final Logger LOGGER = LogManager.getLogger(PlayerPerformanceServiceImpl.class.getName());
+public class PlayerPerformanceServiceJdbc implements PlayerPerformanceService {
+    private static final Logger LOGGER = LogManager.getLogger(PlayerPerformanceServiceJdbc.class.getName());
 
     private final PlayerPerformanceRepository playerPerformanceRepository;
     private final GoalAttemptService goalAttemptService;
     private final PenaltyShootService penaltyShootService;
     private final PositionService positionService;
 
-    public PlayerPerformanceServiceImpl(PlayerPerformanceRepository playerPerformanceRepository,
+    public PlayerPerformanceServiceJdbc(PlayerPerformanceRepository playerPerformanceRepository,
                                         GoalAttemptService goalAttemptService,
                                         PenaltyShootService penaltyShootService,
                                         PositionService positionService) {
